@@ -1,0 +1,105 @@
+type Attribute @jsonField {
+  # display_type field of metadata attributes
+  displayType: String
+  # trait_type field of metadata attributes
+  traitType: String!
+  value: String!
+}
+
+
+# these values come from the fetched metadata object from the token URI
+type Metadata @entity {
+  id: ID!
+  name: String @index
+  description: String
+  image: String
+  # external_url field of metadata
+  externalUrl: String
+  attributes: [Attribute!]
+  type: String @index
+  composite: Boolean
+  layers: [String!]
+  artist: String @index
+  # artist_url field of metadata
+  artistUrl: String
+}
+
+type Token @entity {
+  id: ID!
+  numericId: BigInt! @index
+  owner: Owner
+  # tokenURI of contract
+  tokenUri: String
+  # compositeURI of contract
+  compositeTokenUri: String
+  # timestamp when the token URIs were updated last
+  updatedAt: BigInt! @index
+  createdAt: BigInt! @index
+  transfers: [Transfer!]! @derivedFrom(field: "token")
+  contract: Contract!
+  metadata: Metadata
+}
+
+type Owner @entity {
+  id: ID!
+  ownedTokens: [Token!]! @derivedFrom(field: "owner")
+  totalCollectionNfts: [TotalOwnedNft!]!
+  # amount of tokens
+  balance: BigInt! @index
+  transfers: [OwnerTransfer!] @derivedFrom(field: "owner")
+}
+
+type TotalOwnedNft @jsonField {
+  conctractAddress: String!
+  amount: Int!
+}
+# Generic contract stats
+type Contract @entity {
+  # 1
+  id: ID!
+  factoryId: BigInt! @index
+  name: String @index
+  symbol: String @index
+  #updated on each mint/burn
+  totalSupply: BigInt! 
+  mintedTokens: [Token!]! @derivedFrom(field: "contract")
+  # contract URI updated once e.g. a day
+  contractURI: String
+  # timestamp when the contract URI was updated last
+  contractURIUpdated: BigInt @index
+  decimals: Int
+  startBlock: Int! @index
+
+  #metadata
+  metadataName: String @index
+  description: String
+  image: String
+  externalLink: String
+  artist: String @index
+  artistUrl: String
+
+  #counters
+  uniqueOwnersCount: Int! @index
+}
+
+type Transfer @entity {
+  id: ID!
+  token: Token!
+  from: Owner
+  to: Owner
+  timestamp: BigInt! @index
+  block: Int! @index
+  transactionHash: String! @index
+}
+
+enum Direction {
+  FROM
+  TO
+}
+
+type OwnerTransfer @entity {
+  id: ID!
+  owner: Owner
+  transfer: Transfer!
+  direction: Direction!
+}

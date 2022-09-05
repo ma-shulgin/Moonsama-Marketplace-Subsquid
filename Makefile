@@ -25,6 +25,8 @@ codegen:
 typegen:
 	@npx squid-substrate-typegen typegen.json
 
+EvmTypegen:
+	npx squid-evm-typegen --abi=src/abi/ERC721.json --output=src/abi/erc721.ts
 
 up:
 	@docker-compose up -d

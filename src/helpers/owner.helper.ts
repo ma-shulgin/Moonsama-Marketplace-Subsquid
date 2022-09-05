@@ -2,42 +2,58 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { CommonHandlerContext } from '@subsquid/substrate-processor'
 import { Store } from '@subsquid/typeorm-store'
-import { Owner, TotalOwnedNft } from '../model'
-import { owners } from '../utils/entitiesManager'
+import { ERC721Owner, ERC1155Owner } from '../model'
+import { ERC721owner, ERC1155owner } from '../utils/entitiesManager'
 
-export async function getOrCreateOwner(
+
+export async function getOrCreateERC721Owner(
   ctx: CommonHandlerContext<Store>,
   id: string
-): Promise<Owner> {
-  let owner = await owners.get(ctx.store, Owner, id)
+): Promise<ERC721Owner> {
+  let owner = await ERC721owner.get(ctx.store, ERC721Owner, id)
   if (!owner) {
-    owner = new Owner({
+    owner = new ERC721Owner({
       id,
       balance: 0n,
-      totalCollectionNfts: [],
     })
   }
-  owners.save(owner)
+  // ERC721owner.save(owner)
   return owner
 }
 
-export function findCollectionStat(
-  ownStats: TotalOwnedNft[],
-  conctractAddress: string,
-  createIfNull: boolean
-): TotalOwnedNft {
-  const neededStat = ownStats.find(
-    (stat) => stat.conctractAddress === conctractAddress
-  )
-  if (!neededStat) {
-    if (createIfNull) {
-      const newStat = new TotalOwnedNft({
-        conctractAddress,
-        amount: 0,
-      })
-      ownStats.push(newStat)
-      return newStat
-    }
-    throw new Error(`No items for contract ${conctractAddress}`)
-  } else return neededStat
+export async function getOrCreateERC1155Owner(
+  ctx: CommonHandlerContext<Store>,
+  id: string
+): Promise<ERC1155Owner> {
+  let owner = await ERC1155owner.get(ctx.store, ERC1155Owner, id)
+  if (!owner) {
+    owner = new ERC1155Owner({
+      id,
+    })
+  }
+  // ERC1155owner.save(owner)
+  return owner
 }
+
+
+
+// export function findCollectionStat(
+//   ownStats: TotalOwnedNft[],
+//   conctractAddress: string,
+//   createIfNull: boolean
+// ): TotalOwnedNft {
+//   const neededStat = ownStats.find(
+//     (stat) => stat.conctractAddress === conctractAddress
+//   )
+//   if (!neededStat) {
+//     if (createIfNull) {
+//       const newStat = new TotalOwnedNft({
+//         conctractAddress,
+//         amount: 0,
+//       })
+//       ownStats.push(newStat)
+//       return newStat
+//     }
+//     throw new Error(`No items for contract ${conctractAddress}`)
+//   } else return neededStat
+// }

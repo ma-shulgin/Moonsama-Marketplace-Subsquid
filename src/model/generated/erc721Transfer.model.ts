@@ -1,11 +1,11 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
 import * as marshal from "./marshal"
-import {Token} from "./token.model"
-import {Owner} from "./owner.model"
+import {ERC721Token} from "./erc721Token.model"
+import {ERC721Owner} from "./erc721Owner.model"
 
 @Entity_()
-export class Transfer {
-  constructor(props?: Partial<Transfer>) {
+export class ERC721Transfer {
+  constructor(props?: Partial<ERC721Transfer>) {
     Object.assign(this, props)
   }
 
@@ -13,16 +13,16 @@ export class Transfer {
   id!: string
 
   @Index_()
-  @ManyToOne_(() => Token, {nullable: true})
-  token!: Token
+  @ManyToOne_(() => ERC721Token, {nullable: true})
+  token!: ERC721Token
 
   @Index_()
-  @ManyToOne_(() => Owner, {nullable: true})
-  from!: Owner | undefined | null
+  @ManyToOne_(() => ERC721Owner, {nullable: true})
+  from!: ERC721Owner | undefined | null
 
   @Index_()
-  @ManyToOne_(() => Owner, {nullable: true})
-  to!: Owner | undefined | null
+  @ManyToOne_(() => ERC721Owner, {nullable: true})
+  to!: ERC721Owner | undefined | null
 
   @Index_()
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})

@@ -3,12 +3,16 @@ import { assert } from 'console'
 import { FindOptionsRelations, FindOptionsWhere } from 'typeorm'
 
 import {
-  Contract,
-  Transfer,
-  Owner,
-  Token,
+  ERC721Contract,
+  ERC721Owner,
+  ERC721Token,
+  ERC721Transfer,
+  ERC1155Contract,
+  ERC1155Owner,
+  ERC1155Token,
+  ERC1155TokenOwner,
+  ERC1155Transfer,
   Metadata,
-  OwnerTransfer,
 } from '../model'
 
 interface EntityWithId {
@@ -73,18 +77,18 @@ class EntitiesCache<
   }
 }
 
-class TokensCache extends EntitiesCache<Token> {
+class ERC721TokenCache extends EntitiesCache<ERC721Token> {
   async getAllContractTokens(
     db: Store,
     contractAddress: string
-  ): Promise<Array<Token>> {
-    const cachedTokens: Token[] = []
+  ): Promise<Array<ERC721Token>> {
+    const cachedTokens: ERC721Token[] = []
     this.cache.forEach((token, tokenId) => {
       if (tokenId.startsWith(contractAddress)) {
         cachedTokens.push(token)
       }
     })
-    const allTokens = await db.find(Token, {
+    const allTokens = await db.find(ERC721Token, {
       where: {
         contract: {
           id: contractAddress,
@@ -109,18 +113,62 @@ class TokensCache extends EntitiesCache<Token> {
   }
 }
 
-export const contracts = new EntitiesCache<Contract>()
-export const transfers = new EntitiesBuffer<Transfer>()
-export const ownerTransfers = new EntitiesBuffer<OwnerTransfer>()
-export const owners = new EntitiesCache<Owner>()
-export const tokens = new TokensCache()
-export const metadatas = new EntitiesCache<Metadata>()
+class ERC1155TokenCache extends EntitiesCache<ERC1155Token> {
+  async getAllContractTokens(
+    db: Store,
+    contractAddress: string
+  ): Promise<Array<ERC1155Token>> {
+    const cachedTokens: ERC1155Token[] = []
+    this.cache.forEach((token, tokenId) => {
+      if (tokenId.startsWith(contractAddress)) {
+        cachedTokens.push(token)
+      }
+    })
+    const allTokens = await db.find(ERC1155Token, {
+      where: {
+        contract: {
+          id: contractAddress,
+        },
+      },
+    })
+
+    // Replace db tokens that exists in cache
+    cachedTokens.forEach((token) => {
+      const replaceId = allTokens.findIndex((dbToken) => dbToken.id === token.id)
+      // Tokens only that exist in db could be cached
+      assert(replaceId >= 0)
+      allTokens[replaceId] = token
+    })
+
+    // Add everything from db to in-memory cache
+    allTokens.forEach((token)=>{
+      this.addCache(token)
+    })
+    
+    return allTokens
+  }
+}
+
+export const ERC721contract = new EntitiesCache<ERC721Contract>()
+export const ERC721owner = new EntitiesCache<ERC721Owner>()
+export const ERC721token = new ERC721TokenCache()
+export const ERC721transfer = new EntitiesBuffer<ERC721Transfer>()
+export const ERC1155contract = new EntitiesCache<ERC1155Contract>()
+export const ERC1155owner = new EntitiesCache<ERC1155Owner>()
+export const ERC1155token = new ERC1155TokenCache()
+export const ERC1155tokenOwner = new EntitiesCache<ERC1155TokenOwner>()
+export const ERC1155transfer = new EntitiesBuffer<ERC1155Transfer>()
+export const metadata = new EntitiesCache<Metadata>()
 
 export async function saveAll(db: Store): Promise<void> {
-  await contracts.saveAll(db)
-  await metadatas.saveAll(db, true)
-  await owners.saveAll(db, true)
-  await tokens.saveAll(db, true)
-  await transfers.saveAll(db)
-  await ownerTransfers.saveAll(db)
+  await ERC721contract.saveAll(db)
+  await ERC721owner.saveAll(db, true)
+  await ERC721token.saveAll(db, true)
+  await ERC721transfer.saveAll(db)
+  await ERC1155contract.saveAll(db)
+  await ERC1155owner.saveAll(db, true)
+  await ERC1155token.saveAll(db, true)
+  await ERC1155tokenOwner.saveAll(db)
+  await ERC1155transfer.saveAll(db)
+  await metadata.saveAll(db, true)
 }

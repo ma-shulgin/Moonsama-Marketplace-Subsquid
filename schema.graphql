@@ -24,82 +24,107 @@ type Metadata @entity {
   artistUrl: String
 }
 
-type Token @entity {
+type ERC1155Token @entity {
+  # {tokenID}
   id: ID!
   numericId: BigInt! @index
-  owner: Owner
+  owners: [ERC1155TokenOwner!]! @derivedFrom(field: "token")
   # tokenURI of contract
   tokenUri: String
-  # compositeURI of contract
-  compositeTokenUri: String
   # timestamp when the token URIs were updated last
   updatedAt: BigInt! @index
   createdAt: BigInt! @index
-  transfers: [Transfer!]! @derivedFrom(field: "token")
-  contract: Contract!
+  transfers: [ERC1155Transfer!]! @derivedFrom(field: "token")
+  contract: ERC1155Contract
+  totalSupply: BigInt
   metadata: Metadata
 }
 
-type Owner @entity {
+type ERC1155Owner @entity {
+  # {owner address}
   id: ID!
-  ownedTokens: [Token!]! @derivedFrom(field: "owner")
-  totalCollectionNfts: [TotalOwnedNft!]!
-  # amount of tokens
-  balance: BigInt! @index
-  transfers: [OwnerTransfer!] @derivedFrom(field: "owner")
+  ownedTokens: [ERC1155TokenOwner!]! @derivedFrom(field: "owner")
 }
 
-type TotalOwnedNft @jsonField {
-  conctractAddress: String!
-  amount: Int!
+type ERC1155TokenOwner @entity {
+  # ${owner.id}-${token.id}
+  id: ID! 
+  owner: ERC1155Owner!
+  token: ERC1155Token!
+  balance: BigInt!
 }
-# Generic contract stats
-type Contract @entity {
-  # 1
+
+type ERC1155Contract @entity {
+  # {contract address}
   id: ID!
-  factoryId: BigInt! @index
   name: String @index
   symbol: String @index
   #updated on each mint/burn
   totalSupply: BigInt! 
-  mintedTokens: [Token!]! @derivedFrom(field: "contract")
+  mintedTokens: [ERC1155Token!]! @derivedFrom(field: "contract")
   # contract URI updated once e.g. a day
   contractURI: String
   # timestamp when the contract URI was updated last
   contractURIUpdated: BigInt @index
   decimals: Int
-  startBlock: Int! @index
-
-  #metadata
-  metadataName: String @index
-  description: String
-  image: String
-  externalLink: String
-  artist: String @index
-  artistUrl: String
-
-  #counters
-  uniqueOwnersCount: Int! @index
+  address: String
 }
 
-type Transfer @entity {
+type ERC1155Transfer @entity {
+  # {txhash}-{tokenID}-{txlogindex}
   id: ID!
-  token: Token!
-  from: Owner
-  to: Owner
+  token: ERC1155Token!
+  from: ERC1155Owner
+  to: ERC1155Owner
   timestamp: BigInt! @index
   block: Int! @index
   transactionHash: String! @index
 }
 
-enum Direction {
-  FROM
-  TO
+type ERC721Token @entity {
+  id: ID!
+  numericId: BigInt! @index
+  owner: ERC721Owner
+  # tokenURI of contract
+  tokenUri: String
+  # timestamp when the token URIs were updated last
+  updatedAt: BigInt! @index
+  createdAt: BigInt! @index
+  transfers: [ERC721Transfer!]! @derivedFrom(field: "token")
+  contract: ERC721Contract!
+  metadata: Metadata
 }
 
-type OwnerTransfer @entity {
+type ERC721Owner @entity {
   id: ID!
-  owner: Owner
-  transfer: Transfer!
-  direction: Direction!
+  ownedTokens: [ERC721Token!]! @derivedFrom(field: "owner")
+  balance: BigInt! @index
 }
+
+type ERC721Contract @entity {
+  # 1
+  id: ID!
+  name: String @index
+  symbol: String @index
+  #updated on each mint/burn
+  totalSupply: BigInt
+  mintedTokens: [ERC721Token!]! @derivedFrom(field: "contract")
+  # contract URI updated once e.g. a day
+  contractURI: String
+  address: String
+  # timestamp when the contract URI was updated last
+  contractURIUpdated: BigInt @index
+  decimals: Int
+}
+
+type ERC721Transfer @entity {
+  # {txhash}-{txlogindex}
+  id: ID!
+  token: ERC721Token!
+  from: ERC721Owner
+  to: ERC721Owner
+  timestamp: BigInt! @index
+  block: Int! @index
+  transactionHash: String! @index
+}
+

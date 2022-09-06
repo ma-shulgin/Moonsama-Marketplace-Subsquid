@@ -53,7 +53,7 @@ export async function parseMetadata(
   const rawMeta = await fetchMetadata(ctx, url)
   if (!rawMeta) return undefined
   const metadata = new Metadata({
-    id: metaId,
+    id: 'meta-'+metaId,
     name: rawMeta.name,
     description: rawMeta.description,
     image: rawMeta.image,

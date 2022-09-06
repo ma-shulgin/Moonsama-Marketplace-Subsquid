@@ -3,21 +3,21 @@
 import { CommonHandlerContext } from '@subsquid/substrate-processor'
 import { Store } from '@subsquid/typeorm-store'
 import { ERC721Owner, ERC1155Owner } from '../model'
-import { ERC721owner, ERC1155owner } from '../utils/entitiesManager'
+import { ERC721owners, ERC1155owners } from '../utils/entitiesManager'
 
 
 export async function getOrCreateERC721Owner(
   ctx: CommonHandlerContext<Store>,
   id: string
 ): Promise<ERC721Owner> {
-  let owner = await ERC721owner.get(ctx.store, ERC721Owner, id)
+  let owner = await ERC721owners.get(ctx.store, ERC721Owner, id)
   if (!owner) {
     owner = new ERC721Owner({
       id,
       balance: 0n,
     })
   }
-  // ERC721owner.save(owner)
+  // ERC721owners.save(owner)
   return owner
 }
 
@@ -25,7 +25,7 @@ export async function getOrCreateERC1155Owner(
   ctx: CommonHandlerContext<Store>,
   id: string
 ): Promise<ERC1155Owner> {
-  let owner = await ERC1155owner.get(ctx.store, ERC1155Owner, id)
+  let owner = await ERC1155owners.get(ctx.store, ERC1155Owner, id)
   if (!owner) {
     owner = new ERC1155Owner({
       id,

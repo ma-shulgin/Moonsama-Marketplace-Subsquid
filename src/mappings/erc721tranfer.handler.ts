@@ -10,19 +10,14 @@ import {
 } from '../model';
 import * as erc721 from '../abi/erc721';
 import {
-	ERC721contract,
-	ERC721owner,
-	ERC721token,
-	ERC721transfer,
-	metadata,
+	ERC721contracts,
+	ERC721owners,
+	ERC721tokens,
+	ERC721transfers,
+	metadatas,
 } from '../utils/entitiesManager';
-import { parseMetadata, fetchContractMetadata } from '../helpers/metadata.helper';
-// import {
-// 	getTokenId,
-// 	getOrCreateERC721Owner,
-// 	updateERC721TokenMetadata,
-// } from '../helpers';
-import { NULL_ADDRESS, TOKEN_RELATIONS } from '../utils/config';
+import { parseMetadata, fetchContractMetadata } from '../helpers/metadata.helper'
+import { TOKEN_RELATIONS } from '../utils/config';
 
 export async function erc721handleTransfer(
 	ctx: EvmLogHandlerContext<Store>
@@ -41,7 +36,7 @@ export async function erc721handleTransfer(
 			contractAPI.totalSupply(),
 			contractAPI.tokenURI(data.tokenId),
 		]);
-	let oldOwner = await ERC721owner.get(
+	let oldOwner = await ERC721owners.get(
 		ctx.store,
 		ERC721Owner,
 		data.from.toLowerCase()
@@ -53,7 +48,7 @@ export async function erc721handleTransfer(
 		});
 	}
 
-	let owner = await ERC721owner.get(
+	let owner = await ERC721owners.get(
 		ctx.store,
 		ERC721Owner,
 		data.to.toLowerCase()
@@ -77,10 +72,10 @@ export async function erc721handleTransfer(
 		owner.balance = owner.balance + BigInt(1);
 	}
 
-	ERC721owner.save(oldOwner);
-	ERC721owner.save(owner);
+	ERC721owners.save(oldOwner);
+	ERC721owners.save(owner);
 
-	let contractData = await ERC721contract.get(
+	let contractData = await ERC721contracts.get(
 		ctx.store,
 		ERC721Contract,
 		contractAddress
@@ -113,16 +108,16 @@ export async function erc721handleTransfer(
 		contractData.description = rawMetadata.description;
 		contractData.image = rawMetadata.image;
 	}
-	ERC721contract.save(contractData);
+	ERC721contracts.save(contractData);
 
 	let metadatId = contractAddress + '-' + data.tokenId.toString();
-	let meta = await metadata.get(ctx.store, Metadata, metadatId);
-	if (!meta) {
-		meta = await parseMetadata(ctx, tokenUri, metadatId);
-		if (meta) metadata.save(meta);
-	}
+	let metadata = await metadatas.get(ctx.store, Metadata, tokenUri)
+    if (!metadata) {
+      metadata = await parseMetadata(ctx, tokenUri, metadatId)
+      if (metadata) metadatas.save(metadata)
+    }
 
-	let token = await ERC721token.get(
+	let token = await ERC721tokens.get(
 		ctx.store,
 		ERC721Token,
 		metadatId,
@@ -135,20 +130,21 @@ export async function erc721handleTransfer(
 			numericId: data.tokenId.toBigInt(),
 			owner,
 			tokenUri,
-			metadata: meta,
+			metadata,
 			contract: contractData,
 			updatedAt: BigInt(block.timestamp),
 			createdAt: BigInt(block.timestamp),
 		});
 	} else {
 		token.owner = owner;
+		token.updatedAt = BigInt(block.timestamp);
 	}
-	ERC721token.save(token);
+	ERC721tokens.save(token);
 
 	let transferId = block.hash
 		.concat('-'.concat(data.tokenId.toString()))
 		.concat('-'.concat(event.indexInBlock.toString()));
-	let transfer = await ERC721transfer.get(
+	let transfer = await ERC721transfers.get(
 		ctx.store,
 		ERC721Transfer,
 		transferId
@@ -164,6 +160,6 @@ export async function erc721handleTransfer(
 			token,
 		});
 	}
-	ERC721transfer.save(transfer);
+	ERC721transfers.save(transfer);
 	console.log('ERC721Transfer', transfer);
 }

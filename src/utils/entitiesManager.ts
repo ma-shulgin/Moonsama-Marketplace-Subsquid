@@ -161,7 +161,6 @@ export const ERC1155transfers = new EntitiesCache<ERC1155Transfer>()
 export const metadatas = new EntitiesCache<Metadata>()
 
 export async function saveAll(db: Store): Promise<void> {
-  console.log("saveAll", metadatas)
   await metadatas.saveAll(db)
   await ERC721contracts.saveAll(db)
   await ERC721owners.saveAll(db)

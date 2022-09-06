@@ -6,6 +6,7 @@ import {
 	ERC721Owner,
 	ERC721Token,
 	ERC721Transfer,
+	Metadata,
 } from '../model';
 import * as erc721 from '../abi/erc721';
 import {
@@ -13,12 +14,14 @@ import {
 	ERC721owner,
 	ERC721token,
 	ERC721transfer,
+	metadata,
 } from '../utils/entitiesManager';
-import {
-	getTokenId,
-	getOrCreateERC721Owner,
-	updateERC721TokenMetadata,
-} from '../helpers';
+import { parseMetadata } from '../helpers/metadata.helper';
+// import {
+// 	getTokenId,
+// 	getOrCreateERC721Owner,
+// 	updateERC721TokenMetadata,
+// } from '../helpers';
 import { NULL_ADDRESS, TOKEN_RELATIONS } from '../utils/config';
 
 export async function erc721handleTransfer(
@@ -74,6 +77,9 @@ export async function erc721handleTransfer(
 		owner.balance = owner.balance + BigInt(1);
 	}
 
+	ERC721owner.save(oldOwner);
+	ERC721owner.save(owner);
+
 	let contractData = await ERC721contract.get(
 		ctx.store,
 		ERC721Contract,
@@ -97,55 +103,57 @@ export async function erc721handleTransfer(
 		contractData.contractURI = contractURI;
 		contractData.contractURIUpdated = BigInt(block.timestamp);
 	}
-	const nativeId = data.tokenId.toBigInt();
-	const id = getTokenId(contractAddress, nativeId);
+	ERC721contract.save(contractData);
+
+	let metadatId = contractAddress + '-' + data.tokenId.toString();
+	let meta = await metadata.get(ctx.store, Metadata, metadatId);
+	if (!meta) {
+		meta = await parseMetadata(ctx, tokenUri, metadatId);
+		if (meta) metadata.save(meta);
+	}
+
 	let token = await ERC721token.get(
 		ctx.store,
 		ERC721Token,
-		id,
+		metadatId,
 		TOKEN_RELATIONS
 	);
-
-	assert(token);
+	// assert(token);
 	if (!token) {
-		// check if token is minting
-		assert(
-			data.from === NULL_ADDRESS,
-			`Contract's ${contractAddress} Token ${nativeId} transferred before mint`
-		);
 		token = new ERC721Token({
-			id,
-			numericId: nativeId,
+			id: metadatId,
+			numericId: data.tokenId.toBigInt(),
 			owner,
 			tokenUri,
+			metadata: meta,
 			contract: contractData,
 			updatedAt: BigInt(block.timestamp),
 			createdAt: BigInt(block.timestamp),
 		});
-		await updateERC721TokenMetadata(ctx, token, contractAPI);
 	} else {
 		token.owner = owner;
 	}
+	ERC721token.save(token);
 
 	let transferId = block.hash
 		.concat('-'.concat(data.tokenId.toString()))
 		.concat('-'.concat(event.indexInBlock.toString()));
-	// let transfer = await ERC721transfer.get(ctx.store, ERC721Transfer, transferId);
-	// if (transfer == null) {
-	const transfer = new ERC721Transfer({
-		id: transferId,
-		block: block.height,
-		timestamp: BigInt(block.timestamp),
-		transactionHash: block.hash,
-		from: oldOwner,
-		to: owner,
-		token,
-	});
-	// }
-	ctx.log.info(`Token - ${token}`)
-	await ctx.store.save(oldOwner);
-	await ctx.store.save(owner);
-	await ctx.store.save(contractData);
-	await ctx.store.save(token);
-	await ctx.store.save(transfer);
+	let transfer = await ERC721transfer.get(
+		ctx.store,
+		ERC721Transfer,
+		transferId
+	);
+	if (!transfer) {
+		transfer = new ERC721Transfer({
+			id: transferId,
+			block: block.height,
+			timestamp: BigInt(block.timestamp),
+			transactionHash: block.hash,
+			from: oldOwner,
+			to: owner,
+			token,
+		});
+	}
+	ERC721transfer.save(transfer);
+	console.log('ERC721Transfer', transfer);
 }

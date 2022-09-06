@@ -152,12 +152,12 @@ class ERC1155TokenCache extends EntitiesCache<ERC1155Token> {
 export const ERC721contract = new EntitiesCache<ERC721Contract>()
 export const ERC721owner = new EntitiesCache<ERC721Owner>()
 export const ERC721token = new ERC721TokenCache()
-export const ERC721transfer = new EntitiesBuffer<ERC721Transfer>()
+export const ERC721transfer = new EntitiesCache<ERC721Transfer>()
 export const ERC1155contract = new EntitiesCache<ERC1155Contract>()
 export const ERC1155owner = new EntitiesCache<ERC1155Owner>()
 export const ERC1155token = new ERC1155TokenCache()
 export const ERC1155tokenOwner = new EntitiesCache<ERC1155TokenOwner>()
-export const ERC1155transfer = new EntitiesBuffer<ERC1155Transfer>()
+export const ERC1155transfer = new EntitiesCache<ERC1155Transfer>()
 export const metadata = new EntitiesCache<Metadata>()
 
 export async function saveAll(db: Store): Promise<void> {

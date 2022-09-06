@@ -47,12 +47,13 @@ export const fetchMetadata = async (
 
 export async function parseMetadata(
   ctx: CommonHandlerContext<Store>,
-  url: string
+  url: string,
+  metaId: string,
 ): Promise<Metadata | undefined> {
   const rawMeta = await fetchMetadata(ctx, url)
   if (!rawMeta) return undefined
   const metadata = new Metadata({
-    id: url,
+    id: metaId,
     name: rawMeta.name,
     description: rawMeta.description,
     image: rawMeta.image,

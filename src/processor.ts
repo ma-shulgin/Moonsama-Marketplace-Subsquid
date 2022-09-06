@@ -124,7 +124,6 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
 	const contractAddress = ctx.event.args.address;
 	if (
 		contractAddress === config.MOONSAMA_ADDRESS &&
-		config.MOONSAMA_HEIGHT >= ctx.block.height &&
 		ctx.event.args.topics[0] ===
 			erc721.events['Transfer(address,address,uint256)'].topic
 	) {

@@ -123,7 +123,7 @@ processor.run(database, async (ctx) => {
 async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
 	const contractAddress = ctx.event.args.address;
 	if (
-		contractAddress === config.MOONSAMA_ADDRESS &&
+		contractAddress === config.MOONSAMA_ADDRESS && config.MOONSAMA_HEIGHT <= ctx.block.height &&
 		ctx.event.args.topics[0] ===
 			erc721.events['Transfer(address,address,uint256)'].topic
 	) {
@@ -132,11 +132,11 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
 
 	// if (
 	// 	((contractAddress === config.MOONSAMA_ADDRESS &&
-	// 		config.MOONSAMA_HEIGHT >= ctx.block.height) ||
+	// 		config.MOONSAMA_HEIGHT <= ctx.block.height) ||
 	// 		(contractAddress === config.PONDSAMA_ADDRESS &&
-	// 			config.PONDSAMA_HEIGHT >= ctx.block.height) ||
+	// 			config.PONDSAMA_HEIGHT <= ctx.block.height) ||
 	// 		(contractAddress === config.PLOT_ADDRESS &&
-	// 			config.PLOT_HEIGHT >= ctx.block.height)) &&
+	// 			config.PLOT_HEIGHT <= ctx.block.height)) &&
 	// 	ctx.event.args.topics[0] ===
 	// 		erc721.events['Transfer(address,address,uint256)'].topic
 	// ) {

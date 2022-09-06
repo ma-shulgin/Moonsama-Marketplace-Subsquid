@@ -16,7 +16,7 @@ import {
 	ERC721transfer,
 	metadata,
 } from '../utils/entitiesManager';
-import { parseMetadata } from '../helpers/metadata.helper';
+import { parseMetadata, fetchContractMetadata } from '../helpers/metadata.helper';
 // import {
 // 	getTokenId,
 // 	getOrCreateERC721Owner,
@@ -95,6 +95,7 @@ export async function erc721handleTransfer(
 			decimals: 0,
 			contractURI: contractURI,
 			contractURIUpdated: BigInt(block.timestamp),
+			startBlock: block.height,
 		});
 	} else {
 		contractData.name = name;
@@ -102,6 +103,15 @@ export async function erc721handleTransfer(
 		contractData.totalSupply = totalSupply.toBigInt();
 		contractData.contractURI = contractURI;
 		contractData.contractURIUpdated = BigInt(block.timestamp);
+	}
+	const rawMetadata = await fetchContractMetadata(ctx, contractURI);
+	if (rawMetadata) {
+		contractData.metadataName = rawMetadata.name;
+		contractData.artist = rawMetadata.artist;
+		contractData.artistUrl = rawMetadata.artistUrl;
+		contractData.externalLink = rawMetadata.externalLink;
+		contractData.description = rawMetadata.description;
+		contractData.image = rawMetadata.image;
 	}
 	ERC721contract.save(contractData);
 

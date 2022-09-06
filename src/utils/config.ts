@@ -10,14 +10,23 @@ export const ART_ADDRESS = process.env.BLVCK_ADDRESS || "0xdea45e7c6944cb86a2686
 export const BOX_ADDRESS = process.env.BOX_ADDRESS   || "0xd335417999ff2b9b59737244e554370264b3f877".toLowerCase();
 export const EMBASSY_ADDRESS = process.env.EMBASSY_ADDRESS || "0x0a54845ac3743c96e582e03f26c3636ea9c00c8a".toLowerCase();
 
-export const MOONSAMA_HEIGHT = process.env.MOONSAMA_HEIGHT || 568970;
-export const PONDSAMA_HEIGHT = process.env.PONDSAMA_HEIGHT || 1992976;
-export const PLOT_HEIGHT = process.env.PLOT_HEIGHT || 1241477;
-export const MOONX_HEIGHT = process.env.MOONX_HEIGHT || 664200;
-export const FACTORY_HEIGHT = process.env.FACTORY_HEIGHT || 827439;
-export const ART_HEIGHT = process.env.ART_HEIGHT || 1027541;
-export const BOX_HEIGHT = process.env.BOX_HEIGHT || 1402610;
-export const EMBASSY_HEIGHT = process.env.EMBASSY_HEIGHT || 1527496;
+export const MOONSAMA_HEIGHT = 568970;
+export const PONDSAMA_HEIGHT = 1992976;
+export const PLOT_HEIGHT = 1241477;
+export const MOONX_HEIGHT = 664200;
+export const FACTORY_HEIGHT = 827439;
+export const ART_HEIGHT = 1027541;
+export const BOX_HEIGHT = 1402610;
+export const EMBASSY_HEIGHT = 1527496;
+
+// export const MOONSAMA_HEIGHT = process.env.MOONSAMA_HEIGHT || 568970;
+// export const PONDSAMA_HEIGHT = process.env.PONDSAMA_HEIGHT || 1992976;
+// export const PLOT_HEIGHT = process.env.PLOT_HEIGHT || 1241477;
+// export const MOONX_HEIGHT = process.env.MOONX_HEIGHT || 664200;
+// export const FACTORY_HEIGHT = process.env.FACTORY_HEIGHT || 827439;
+// export const ART_HEIGHT = process.env.ART_HEIGHT || 1027541;
+// export const BOX_HEIGHT = process.env.BOX_HEIGHT || 1402610;
+// export const EMBASSY_HEIGHT = process.env.EMBASSY_HEIGHT || 1527496;
 
 
 export const UPDATE_RATE = BigInt(process.env.UPDATE_RATE || 6*60*60*1000); // 6 hours

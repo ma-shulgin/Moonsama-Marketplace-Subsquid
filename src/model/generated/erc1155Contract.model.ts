@@ -37,4 +37,28 @@ export class ERC1155Contract {
 
   @Column_("text", {nullable: true})
   address!: string | undefined | null
+
+  @Index_()
+  @Column_("int4", {nullable: false})
+  startBlock!: number
+
+  @Index_()
+  @Column_("text", {nullable: true})
+  metadataName!: string | undefined | null
+
+  @Column_("text", {nullable: true})
+  description!: string | undefined | null
+
+  @Column_("text", {nullable: true})
+  image!: string | undefined | null
+
+  @Column_("text", {nullable: true})
+  externalLink!: string | undefined | null
+
+  @Index_()
+  @Column_("text", {nullable: true})
+  artist!: string | undefined | null
+
+  @Column_("text", {nullable: true})
+  artistUrl!: string | undefined | null
 }

@@ -1,5 +1,5 @@
-module.exports = class Data1662429614473 {
-  name = 'Data1662429614473'
+module.exports = class Data1662432964078 {
+  name = 'Data1662432964078'
 
   async up(db) {
     await db.query(`CREATE TABLE "metadata" ("id" character varying NOT NULL, "name" text, "description" text, "image" text, "external_url" text, "attributes" jsonb, "type" text, "composite" boolean, "layers" text array, "artist" text, "artist_url" text, CONSTRAINT "PK_56b22355e89941b9792c04ab176" PRIMARY KEY ("id"))`)
@@ -17,10 +17,13 @@ module.exports = class Data1662429614473 {
     await db.query(`CREATE INDEX "IDX_a710dbe2d7831f389658fcd4cd" ON "erc1155_transfer" ("timestamp") `)
     await db.query(`CREATE INDEX "IDX_eb6de019412e0d2669215b32ce" ON "erc1155_transfer" ("block") `)
     await db.query(`CREATE INDEX "IDX_7dd124d4d8530e19ece2ce748f" ON "erc1155_transfer" ("transaction_hash") `)
-    await db.query(`CREATE TABLE "erc1155_contract" ("id" character varying NOT NULL, "name" text, "symbol" text, "total_supply" numeric NOT NULL, "contract_uri" text, "contract_uri_updated" numeric, "decimals" integer, "address" text, CONSTRAINT "PK_714a9ea4826d73898b5c2251116" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE TABLE "erc1155_contract" ("id" character varying NOT NULL, "name" text, "symbol" text, "total_supply" numeric NOT NULL, "contract_uri" text, "contract_uri_updated" numeric, "decimals" integer, "address" text, "start_block" integer NOT NULL, "metadata_name" text, "description" text, "image" text, "external_link" text, "artist" text, "artist_url" text, CONSTRAINT "PK_714a9ea4826d73898b5c2251116" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_e8ace22c94990de661373718b6" ON "erc1155_contract" ("name") `)
     await db.query(`CREATE INDEX "IDX_72746f33a71beea8e477dddd7d" ON "erc1155_contract" ("symbol") `)
     await db.query(`CREATE INDEX "IDX_1219f72244507c6bf39118884b" ON "erc1155_contract" ("contract_uri_updated") `)
+    await db.query(`CREATE INDEX "IDX_1f49e18fbe8cdf5a2b9235fee4" ON "erc1155_contract" ("start_block") `)
+    await db.query(`CREATE INDEX "IDX_ac882b2fc61e69629c1c913524" ON "erc1155_contract" ("metadata_name") `)
+    await db.query(`CREATE INDEX "IDX_b6cf2451b961d0395c48fb33d4" ON "erc1155_contract" ("artist") `)
     await db.query(`CREATE TABLE "erc1155_token" ("id" character varying NOT NULL, "numeric_id" numeric NOT NULL, "token_uri" text, "updated_at" numeric NOT NULL, "created_at" numeric NOT NULL, "total_supply" numeric, "contract_id" character varying, "metadata_id" character varying, CONSTRAINT "PK_63124737654b07d068bf54cfcfe" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_971d08a276e78e8d6531b70c26" ON "erc1155_token" ("numeric_id") `)
     await db.query(`CREATE INDEX "IDX_ef2270a39b0c132ae41e02e2d2" ON "erc1155_token" ("updated_at") `)
@@ -36,10 +39,13 @@ module.exports = class Data1662429614473 {
     await db.query(`CREATE INDEX "IDX_eccad602965a1e6ac6125a6a98" ON "erc721_transfer" ("timestamp") `)
     await db.query(`CREATE INDEX "IDX_c875d7b7bce5e0f1fd27966eee" ON "erc721_transfer" ("block") `)
     await db.query(`CREATE INDEX "IDX_4b006886133830719cf783d39e" ON "erc721_transfer" ("transaction_hash") `)
-    await db.query(`CREATE TABLE "erc721_contract" ("id" character varying NOT NULL, "name" text, "symbol" text, "total_supply" numeric, "contract_uri" text, "address" text, "contract_uri_updated" numeric, "decimals" integer, CONSTRAINT "PK_5ac5a33bb1d74ded4bc74a3661c" PRIMARY KEY ("id"))`)
+    await db.query(`CREATE TABLE "erc721_contract" ("id" character varying NOT NULL, "name" text, "symbol" text, "total_supply" numeric, "contract_uri" text, "address" text, "contract_uri_updated" numeric, "decimals" integer, "start_block" integer NOT NULL, "metadata_name" text, "description" text, "image" text, "external_link" text, "artist" text, "artist_url" text, CONSTRAINT "PK_5ac5a33bb1d74ded4bc74a3661c" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_6501d2a444d490fadefc6e253d" ON "erc721_contract" ("name") `)
     await db.query(`CREATE INDEX "IDX_23b93ea57b842b3e653f2bcb95" ON "erc721_contract" ("symbol") `)
     await db.query(`CREATE INDEX "IDX_858775bde12dc639d0f463ccbb" ON "erc721_contract" ("contract_uri_updated") `)
+    await db.query(`CREATE INDEX "IDX_be9af09e9a3bd119256d1f00ab" ON "erc721_contract" ("start_block") `)
+    await db.query(`CREATE INDEX "IDX_e6c54febe8ec39f1cd6a5c5f45" ON "erc721_contract" ("metadata_name") `)
+    await db.query(`CREATE INDEX "IDX_ebe14ec419e71c4aa399db1749" ON "erc721_contract" ("artist") `)
     await db.query(`CREATE TABLE "erc721_token" ("id" character varying NOT NULL, "numeric_id" numeric NOT NULL, "token_uri" text, "updated_at" numeric NOT NULL, "created_at" numeric NOT NULL, "owner_id" character varying, "contract_id" character varying, "metadata_id" character varying, CONSTRAINT "PK_d621a67a63a7afeeac11533cd2e" PRIMARY KEY ("id"))`)
     await db.query(`CREATE INDEX "IDX_a6de81dc0c14f5b6870b3dc0f3" ON "erc721_token" ("numeric_id") `)
     await db.query(`CREATE INDEX "IDX_2b5437007e048eccbeb8222235" ON "erc721_token" ("owner_id") `)
@@ -82,6 +88,9 @@ module.exports = class Data1662429614473 {
     await db.query(`DROP INDEX "public"."IDX_e8ace22c94990de661373718b6"`)
     await db.query(`DROP INDEX "public"."IDX_72746f33a71beea8e477dddd7d"`)
     await db.query(`DROP INDEX "public"."IDX_1219f72244507c6bf39118884b"`)
+    await db.query(`DROP INDEX "public"."IDX_1f49e18fbe8cdf5a2b9235fee4"`)
+    await db.query(`DROP INDEX "public"."IDX_ac882b2fc61e69629c1c913524"`)
+    await db.query(`DROP INDEX "public"."IDX_b6cf2451b961d0395c48fb33d4"`)
     await db.query(`DROP TABLE "erc1155_token"`)
     await db.query(`DROP INDEX "public"."IDX_971d08a276e78e8d6531b70c26"`)
     await db.query(`DROP INDEX "public"."IDX_ef2270a39b0c132ae41e02e2d2"`)
@@ -101,6 +110,9 @@ module.exports = class Data1662429614473 {
     await db.query(`DROP INDEX "public"."IDX_6501d2a444d490fadefc6e253d"`)
     await db.query(`DROP INDEX "public"."IDX_23b93ea57b842b3e653f2bcb95"`)
     await db.query(`DROP INDEX "public"."IDX_858775bde12dc639d0f463ccbb"`)
+    await db.query(`DROP INDEX "public"."IDX_be9af09e9a3bd119256d1f00ab"`)
+    await db.query(`DROP INDEX "public"."IDX_e6c54febe8ec39f1cd6a5c5f45"`)
+    await db.query(`DROP INDEX "public"."IDX_ebe14ec419e71c4aa399db1749"`)
     await db.query(`DROP TABLE "erc721_token"`)
     await db.query(`DROP INDEX "public"."IDX_a6de81dc0c14f5b6870b3dc0f3"`)
     await db.query(`DROP INDEX "public"."IDX_2b5437007e048eccbeb8222235"`)

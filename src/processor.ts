@@ -17,7 +17,7 @@ import * as config from './utils/config';
 const database = new TypeormDatabase();
 const processor = new SubstrateBatchProcessor()
 	.setBatchSize(100)
-	.setBlockRange({ from: 1527496 })
+	.setBlockRange({ from: 568970 })
 	.setDataSource({
 		chain: config.CHAIN_NODE,
 		archive: lookupArchive('moonriver', { release: 'FireSquid' }),
@@ -44,18 +44,18 @@ const processor = new SubstrateBatchProcessor()
 // 		],
 // 	],
 // })
-// .addEvmLog(config.FACTORY_ADDRESS, {
-// 	filter: [
-// 		[
-// 			erc1155.events[
-// 				'TransferSingle(address,address,address,uint256,uint256)'
-// 			].topic,
-// 			erc1155.events[
-// 				'TransferBatch(address,address,address,uint256[],uint256[])'
-// 			].topic,
-// 		],
-// 	],
-// })
+.addEvmLog(config.FACTORY_ADDRESS, {
+	filter: [
+		[
+			erc1155.events[
+				'TransferSingle(address,address,address,uint256,uint256)'
+			].topic,
+			erc1155.events[
+				'TransferBatch(address,address,address,uint256[],uint256[])'
+			].topic,
+		],
+	],
+})
 // .addEvmLog(config.ART_ADDRESS, {
 // 	filter: [
 // 		[
@@ -80,18 +80,18 @@ const processor = new SubstrateBatchProcessor()
 // 		],
 // 	],
 // })
-.addEvmLog(config.EMBASSY_ADDRESS, {
-	filter: [
-		[
-			erc1155.events[
-				'TransferSingle(address,address,address,uint256,uint256)'
-			].topic,
-			erc1155.events[
-				'TransferBatch(address,address,address,uint256[],uint256[])'
-			].topic,
-		],
-	],
-});
+// .addEvmLog(config.EMBASSY_ADDRESS, {
+// 	filter: [
+// 		[
+// 			erc1155.events[
+// 				'TransferSingle(address,address,address,uint256,uint256)'
+// 			].topic,
+// 			erc1155.events[
+// 				'TransferBatch(address,address,address,uint256[],uint256[])'
+// 			].topic,
+// 		],
+// 	],
+// });
 
 processor.run(database, async (ctx) => {
 	for (const block of ctx.blocks) {
@@ -122,7 +122,7 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
 	// }
 
 	if (
-		contractAddress === config.EMBASSY_ADDRESS && config.EMBASSY_HEIGHT <= ctx.block.height
+		contractAddress === config.FACTORY_ADDRESS && config.FACTORY_HEIGHT <= ctx.block.height
 	) {
 		switch (ctx.event.args.topics[0]) {
 			case erc1155.events[

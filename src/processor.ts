@@ -23,75 +23,75 @@ const processor = new SubstrateBatchProcessor()
 		archive: lookupArchive('moonriver', { release: 'FireSquid' }),
 	})
 	.setTypesBundle('moonriver')
-// .addEvmLog(config.MOONSAMA_ADDRESS, {
-//  	filter: [erc721.events['Transfer(address,address,uint256)'].topic],
-//  })
-// .addEvmLog(config.PONDSAMA_ADDRESS, {
-// 	filter: [[erc721.events['Transfer(address,address,uint256)'].topic]],
-// })
-// .addEvmLog(config.PLOT_ADDRESS, {
-// 	filter: [[erc721.events['Transfer(address,address,uint256)'].topic]],
-// })
-// .addEvmLog(config.MOONX_ADDRESS, {
-// 	filter: [
-// 		[
-// 			erc1155.events[
-// 				'TransferSingle(address,address,address,uint256,uint256)'
-// 			].topic,
-// 			erc1155.events[
-// 				'TransferBatch(address,address,address,uint256[],uint256[])'
-// 			].topic,
-// 		],
-// 	],
-// })
-.addEvmLog(config.FACTORY_ADDRESS, {
-	filter: [
-		[
-			erc1155.events[
-				'TransferSingle(address,address,address,uint256,uint256)'
-			].topic,
-			erc1155.events[
-				'TransferBatch(address,address,address,uint256[],uint256[])'
-			].topic,
+	.addEvmLog(config.MOONSAMA_ADDRESS, {
+		filter: [erc721.events['Transfer(address,address,uint256)'].topic],
+	})
+	.addEvmLog(config.PONDSAMA_ADDRESS, {
+		filter: [[erc721.events['Transfer(address,address,uint256)'].topic]],
+	})
+	.addEvmLog(config.PLOT_ADDRESS, {
+		filter: [[erc721.events['Transfer(address,address,uint256)'].topic]],
+	})
+	.addEvmLog(config.MOONX_ADDRESS, {
+		filter: [
+			[
+				erc1155.events[
+					'TransferSingle(address,address,address,uint256,uint256)'
+				].topic,
+				erc1155.events[
+					'TransferBatch(address,address,address,uint256[],uint256[])'
+				].topic,
+			],
 		],
-	],
-})
-// .addEvmLog(config.ART_ADDRESS, {
-// 	filter: [
-// 		[
-// 			erc1155.events[
-// 				'TransferSingle(address,address,address,uint256,uint256)'
-// 			].topic,
-// 			erc1155.events[
-// 				'TransferBatch(address,address,address,uint256[],uint256[])'
-// 			].topic,
-// 		],
-// 	],
-// })
-// .addEvmLog(config.BOX_ADDRESS, {
-// 	filter: [
-// 		[
-// 			erc1155.events[
-// 				'TransferSingle(address,address,address,uint256,uint256)'
-// 			].topic,
-// 			erc1155.events[
-// 				'TransferBatch(address,address,address,uint256[],uint256[])'
-// 			].topic,
-// 		],
-// 	],
-// })
-// .addEvmLog(config.EMBASSY_ADDRESS, {
-// 	filter: [
-// 		[
-// 			erc1155.events[
-// 				'TransferSingle(address,address,address,uint256,uint256)'
-// 			].topic,
-// 			erc1155.events[
-// 				'TransferBatch(address,address,address,uint256[],uint256[])'
-// 			].topic,
-// 		],
-// 	],
-// });
+	})
+	.addEvmLog(config.FACTORY_ADDRESS, {
+		filter: [
+			[
+				erc1155.events[
+					'TransferSingle(address,address,address,uint256,uint256)'
+				].topic,
+				erc1155.events[
+					'TransferBatch(address,address,address,uint256[],uint256[])'
+				].topic,
+			],
+		],
+	})
+	.addEvmLog(config.ART_ADDRESS, {
+		filter: [
+			[
+				erc1155.events[
+					'TransferSingle(address,address,address,uint256,uint256)'
+				].topic,
+				erc1155.events[
+					'TransferBatch(address,address,address,uint256[],uint256[])'
+				].topic,
+			],
+		],
+	})
+	.addEvmLog(config.BOX_ADDRESS, {
+		filter: [
+			[
+				erc1155.events[
+					'TransferSingle(address,address,address,uint256,uint256)'
+				].topic,
+				erc1155.events[
+					'TransferBatch(address,address,address,uint256[],uint256[])'
+				].topic,
+			],
+		],
+	})
+	.addEvmLog(config.EMBASSY_ADDRESS, {
+		filter: [
+			[
+				erc1155.events[
+					'TransferSingle(address,address,address,uint256,uint256)'
+				].topic,
+				erc1155.events[
+					'TransferBatch(address,address,address,uint256[],uint256[])'
+				].topic,
+			],
+		],
+	});
 
 processor.run(database, async (ctx) => {
 	for (const block of ctx.blocks) {
@@ -121,48 +121,8 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
 	// 	await erc721handleTransfer(ctx);
 	// }
 
-	if (
-		contractAddress === config.FACTORY_ADDRESS && config.FACTORY_HEIGHT <= ctx.block.height
-	) {
-		switch (ctx.event.args.topics[0]) {
-			case erc1155.events[
-				'TransferSingle(address,address,address,uint256,uint256)'
-			].topic:
-				await erc1155handleSingleTransfer(ctx);
-				break;
-			case erc1155.events[
-				'TransferBatch(address,address,address,uint256[],uint256[])'
-			].topic:
-				await erc1155handleMultiTransfer(ctx);
-				break;
-		}
-	}
-
-
 	// if (
-	// 	((contractAddress === config.MOONSAMA_ADDRESS &&
-	// 		config.MOONSAMA_HEIGHT <= ctx.block.height) ||
-	// 		(contractAddress === config.PONDSAMA_ADDRESS &&
-	// 			config.PONDSAMA_HEIGHT <= ctx.block.height) ||
-	// 		(contractAddress === config.PLOT_ADDRESS &&
-	// 			config.PLOT_HEIGHT <= ctx.block.height)) &&
-	// 	ctx.event.args.topics[0] ===
-	// 		erc721.events['Transfer(address,address,uint256)'].topic
-	// ) {
-	// 	await erc721handleTransfer(ctx);
-	// }
-
-	// else if (
-	// 	(contractAddress === config.MOONX_ADDRESS &&
-	// 		config.MOONX_HEIGHT <= ctx.block.height) ||
-	// 	(contractAddress === config.FACTORY_ADDRESS &&
-	// 		config.FACTORY_HEIGHT <= ctx.block.height) ||
-	// 	(contractAddress === config.ART_ADDRESS &&
-	// 		config.ART_HEIGHT <= ctx.block.height) ||
-	// 	(contractAddress === config.BOX_ADDRESS &&
-	// 		config.BOX_HEIGHT <= ctx.block.height) ||
-	// 	(contractAddress === config.EMBASSY_ADDRESS &&
-	// 		config.EMBASSY_HEIGHT <= ctx.block.height)
+	// 	contractAddress === config.FACTORY_ADDRESS && config.FACTORY_HEIGHT <= ctx.block.height
 	// ) {
 	// 	switch (ctx.event.args.topics[0]) {
 	// 		case erc1155.events[
@@ -177,4 +137,44 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
 	// 			break;
 	// 	}
 	// }
+
+
+	if (
+		((contractAddress === config.MOONSAMA_ADDRESS &&
+			config.MOONSAMA_HEIGHT <= ctx.block.height) ||
+			(contractAddress === config.PONDSAMA_ADDRESS &&
+				config.PONDSAMA_HEIGHT <= ctx.block.height) ||
+			(contractAddress === config.PLOT_ADDRESS &&
+				config.PLOT_HEIGHT <= ctx.block.height)) &&
+		ctx.event.args.topics[0] ===
+		erc721.events['Transfer(address,address,uint256)'].topic
+	) {
+		await erc721handleTransfer(ctx);
+	}
+
+	else if (
+		(contractAddress === config.MOONX_ADDRESS &&
+			config.MOONX_HEIGHT <= ctx.block.height) ||
+		(contractAddress === config.FACTORY_ADDRESS &&
+			config.FACTORY_HEIGHT <= ctx.block.height) ||
+		(contractAddress === config.ART_ADDRESS &&
+			config.ART_HEIGHT <= ctx.block.height) ||
+		(contractAddress === config.BOX_ADDRESS &&
+			config.BOX_HEIGHT <= ctx.block.height) ||
+		(contractAddress === config.EMBASSY_ADDRESS &&
+			config.EMBASSY_HEIGHT <= ctx.block.height)
+	) {
+		switch (ctx.event.args.topics[0]) {
+			case erc1155.events[
+				'TransferSingle(address,address,address,uint256,uint256)'
+			].topic:
+				await erc1155handleSingleTransfer(ctx);
+				break;
+			case erc1155.events[
+				'TransferBatch(address,address,address,uint256[],uint256[])'
+			].topic:
+				await erc1155handleMultiTransfer(ctx);
+				break;
+		}
+	}
 }

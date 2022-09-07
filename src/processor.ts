@@ -23,12 +23,12 @@ const processor = new SubstrateBatchProcessor()
 		archive: lookupArchive('moonriver', { release: 'FireSquid' }),
 	})
 	.setTypesBundle('moonriver')
-	// .addEvmLog(config.FACTORY_ADDRESS, {
-	// 	filter: [erc1155.events["TransferSingle(address,address,address,uint256,uint256)"].topic],
-	// })
-.addEvmLog(config.MOONSAMA_ADDRESS, {
- 	filter: [erc721.events['Transfer(address,address,uint256)'].topic],
- })
+	.addEvmLog(config.FACTORY_ADDRESS, {
+		filter: [erc1155.events["TransferSingle(address,address,address,uint256,uint256)"].topic],
+	})
+// .addEvmLog(config.MOONSAMA_ADDRESS, {
+//  	filter: [erc721.events['Transfer(address,address,uint256)'].topic],
+//  })
 // .addEvmLog(config.PONDSAMA_ADDRESS, {
 // 	filter: [[erc721.events['Transfer(address,address,uint256)'].topic]],
 // })
@@ -115,22 +115,22 @@ processor.run(database, async (ctx) => {
 
 async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
 	const contractAddress = ctx.event.args.address;
-	if (
-		contractAddress === config.MOONSAMA_ADDRESS &&
-		config.MOONSAMA_HEIGHT <= ctx.block.height &&
-		ctx.event.args.topics[0] ===
-			erc721.events["Transfer(address,address,uint256)"].topic
-	) {
-		await erc721handleTransfer(ctx);
-	}
-
 	// if (
-	// 	contractAddress === config.FACTORY_ADDRESS &&
+	// 	contractAddress === config.MOONSAMA_ADDRESS &&
+	// 	config.MOONSAMA_HEIGHT <= ctx.block.height &&
 	// 	ctx.event.args.topics[0] ===
-	// 	erc1155.events["TransferSingle(address,address,address,uint256,uint256)"].topic
+	// 		erc721.events["Transfer(address,address,uint256)"].topic
 	// ) {
-	// 	await erc1155handleSingleTransfer(ctx);
+	// 	await erc721handleTransfer(ctx);
 	// }
+
+	if (
+		contractAddress === config.FACTORY_ADDRESS &&
+		ctx.event.args.topics[0] ===
+		erc1155.events["TransferSingle(address,address,address,uint256,uint256)"].topic
+	) {
+		await erc1155handleSingleTransfer(ctx);
+	}
 
 
 	// if (

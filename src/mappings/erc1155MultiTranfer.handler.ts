@@ -180,8 +180,8 @@ export async function erc1155handleMultiTransfer(
 		recipientTokenOwner.token = token;
 
 		// in case of 0x0000000000000000000000000000000000000000 it's the burned amount
-		// recipientTokenOwner.balance =
-		// 	recipientTokenOwner.balance + data.values[i].toBigInt();
+		recipientTokenOwner.balance =
+			recipientTokenOwner.balance + data[4][i].toBigInt();
 
 		ERC1155tokenOwners.save(senderTokenOwner);
 		ERC1155tokenOwners.save(recipientTokenOwner);

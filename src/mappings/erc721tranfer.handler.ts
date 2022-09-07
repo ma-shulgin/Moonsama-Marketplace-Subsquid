@@ -17,7 +17,7 @@ import {
 	metadatas,
 } from '../utils/entitiesManager';
 import { parseMetadata, fetchContractMetadata } from '../helpers/metadata.helper'
-import { TOKEN_RELATIONS } from '../utils/config';
+import { ERC721TOKEN_RELATIONS } from '../utils/config';
 
 export async function erc721handleTransfer(
 	ctx: EvmLogHandlerContext<Store>
@@ -121,7 +121,7 @@ export async function erc721handleTransfer(
 		ctx.store,
 		ERC721Token,
 		metadatId,
-		TOKEN_RELATIONS
+		ERC721TOKEN_RELATIONS
 	);
 	// assert(token);
 	if (!token) {

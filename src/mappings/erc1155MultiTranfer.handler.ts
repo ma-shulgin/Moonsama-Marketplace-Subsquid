@@ -22,8 +22,7 @@ import {
 	parseMetadata,
 	fetchContractMetadata,
 } from '../helpers/metadata.helper';
-import { TOKEN_RELATIONS } from '../utils/config';
-import { BigNumber } from 'ethers';
+import { ERC1155TOKEN_RELATIONS } from '../utils/config';
 
 export async function erc1155handleMultiTransfer(
 	ctx: EvmLogHandlerContext<Store>
@@ -123,7 +122,7 @@ export async function erc1155handleMultiTransfer(
 			ctx.store,
 			ERC1155Token,
 			metadatId,
-			TOKEN_RELATIONS
+			ERC1155TOKEN_RELATIONS
 		);
 		// assert(token);
 		if (!token) {
@@ -158,10 +157,9 @@ export async function erc1155handleMultiTransfer(
 		// if we mint tokens, we don't mark it
 		// total minted ever can be caluclated by totalSupply + burned amount
 
-		// if (oldOwner.id != '0x0000000000000000000000000000000000000000' ) {
-		// 	senderTokenOwner.balance =
-		// 		senderTokenOwner.balance - data.values[i].toBigInt();
-		// }
+		if (oldOwner.id != '0x0000000000000000000000000000000000000000' ) {
+			senderTokenOwner.balance -= data[4][i].toBigInt();
+		}
 
 		let recipientTokenOwnerId = data.to
 			.concat('-')

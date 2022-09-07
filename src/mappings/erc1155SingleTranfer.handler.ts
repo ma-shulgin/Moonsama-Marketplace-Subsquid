@@ -22,12 +22,11 @@ import {
 	parseMetadata,
 	fetchContractMetadata,
 } from '../helpers/metadata.helper';
-import { TOKEN_RELATIONS } from '../utils/config';
+import { ERC1155TOKEN_RELATIONS } from '../utils/config';
 
 export async function erc1155handleSingleTransfer(
 	ctx: EvmLogHandlerContext<Store>
 ): Promise<void> {
-	console.log('asfdsf');
 	const { event, block, store } = ctx;
 	const evmLog = event.args;
 	const contractAddress = evmLog.address.toLowerCase() as string;
@@ -36,7 +35,6 @@ export async function erc1155handleSingleTransfer(
 		erc1155.events[
 			'TransferSingle(address,address,address,uint256,uint256)'
 		].decode(evmLog);
-	console.log('data', data);
 	const [name, symbol, contractURI, decimals, totalSupply, uri] =
 		await Promise.all([
 			contractAPI.name(),
@@ -56,6 +54,7 @@ export async function erc1155handleSingleTransfer(
 			id: data.from.toLowerCase(),
 		});
 	}
+	ERC1155owners.save(oldOwner);
 
 	let owner = await ERC1155owners.get(
 		ctx.store,
@@ -67,7 +66,6 @@ export async function erc1155handleSingleTransfer(
 			id: data.to.toLowerCase(),
 		});
 	}
-	ERC1155owners.save(oldOwner);
 	ERC1155owners.save(owner);
 
 	let contractData = await ERC1155contracts.get(
@@ -121,7 +119,7 @@ export async function erc1155handleSingleTransfer(
 		ctx.store,
 		ERC1155Token,
 		metadatId,
-		TOKEN_RELATIONS
+		ERC1155TOKEN_RELATIONS
 	);
 	// assert(token);
 	if (!token) {
@@ -136,6 +134,7 @@ export async function erc1155handleSingleTransfer(
 		});
 	}
 	token.totalSupply = totalSupply.toBigInt();
+	ERC1155tokens.save(token);
 
 	let senderTokenOwnerId = data.from.concat('-').concat(data.id.toString());
 	let senderTokenOwner = await ERC1155tokenOwners.get(
@@ -177,10 +176,8 @@ export async function erc1155handleSingleTransfer(
 	// in case of 0x0000000000000000000000000000000000000000 it's the burned amount
 	recipientTokenOwner.balance =
 		recipientTokenOwner.balance + data.value.toBigInt();
-
 	ERC1155tokenOwners.save(senderTokenOwner);
 	ERC1155tokenOwners.save(recipientTokenOwner);
-	ERC1155tokens.save(token);
 
 	let transferId = block.hash
 		.concat('-'.concat(data.id.toString()))

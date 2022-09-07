@@ -56,6 +56,7 @@ export async function erc1155handleMultiTransfer(
 				id: data.from.toLowerCase(),
 			});
 		}
+		ERC1155owners.save(oldOwner);
 
 		let owner = await ERC1155owners.get(
 			ctx.store,
@@ -67,8 +68,6 @@ export async function erc1155handleMultiTransfer(
 				id: data.to.toLowerCase(),
 			});
 		}
-
-		ERC1155owners.save(oldOwner);
 		ERC1155owners.save(owner);
 
 		let contractData = await ERC1155contracts.get(
@@ -137,6 +136,7 @@ export async function erc1155handleMultiTransfer(
 			});
 		}
 		token.totalSupply = totalSupply.toBigInt();
+		ERC1155tokens.save(token);
 
 		let senderTokenOwnerId = data.from
 			.concat('-')
@@ -156,10 +156,10 @@ export async function erc1155handleMultiTransfer(
 		senderTokenOwner.token = token;
 		// if we mint tokens, we don't mark it
 		// total minted ever can be caluclated by totalSupply + burned amount
-
 		if (oldOwner.id != '0x0000000000000000000000000000000000000000' ) {
 			senderTokenOwner.balance -= data[4][i].toBigInt();
 		}
+		ERC1155tokenOwners.save(senderTokenOwner);
 
 		let recipientTokenOwnerId = data.to
 			.concat('-')
@@ -175,17 +175,12 @@ export async function erc1155handleMultiTransfer(
 				balance: 0n,
 			});
 		}
-
 		recipientTokenOwner.owner = owner;
 		recipientTokenOwner.token = token;
-
 		// in case of 0x0000000000000000000000000000000000000000 it's the burned amount
 		recipientTokenOwner.balance =
 			recipientTokenOwner.balance + data[4][i].toBigInt();
-
-		ERC1155tokenOwners.save(senderTokenOwner);
 		ERC1155tokenOwners.save(recipientTokenOwner);
-		ERC1155tokens.save(token);
 
 		let transferId = block.hash
 			.concat('-'.concat(data.ids[i].toString()))

@@ -169,6 +169,6 @@ export async function saveAll(db: Store): Promise<void> {
   await ERC1155owners.saveAll(db, true)
   await ERC1155contracts.saveAll(db, true)
   await ERC1155tokens.saveAll(db, true)
-  await ERC1155tokenOwners.saveAll(db, true)
   await ERC1155transfers.saveAll(db, true)
+  await ERC1155tokenOwners.saveAll(db, true)
 }

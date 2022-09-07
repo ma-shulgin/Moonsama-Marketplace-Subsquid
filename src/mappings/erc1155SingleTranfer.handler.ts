@@ -156,6 +156,7 @@ export async function erc1155handleSingleTransfer(
 		senderTokenOwner.balance =
 			senderTokenOwner.balance - data.value.toBigInt();
 	}
+	ERC1155tokenOwners.save(senderTokenOwner);
 
 	let recipientTokenOwnerId = data.to.concat('-').concat(data.id.toString());
 	let recipientTokenOwner = await ERC1155tokenOwners.get(
@@ -176,7 +177,7 @@ export async function erc1155handleSingleTransfer(
 	// in case of 0x0000000000000000000000000000000000000000 it's the burned amount
 	recipientTokenOwner.balance =
 		recipientTokenOwner.balance + data.value.toBigInt();
-	ERC1155tokenOwners.save(senderTokenOwner);
+		
 	ERC1155tokenOwners.save(recipientTokenOwner);
 
 	let transferId = block.hash
@@ -199,5 +200,6 @@ export async function erc1155handleSingleTransfer(
 		});
 	}
 	ERC1155transfers.save(transfer);
-	console.log('ERC1155Transfer', transfer);
+	console.log('senderTokenOwner', senderTokenOwner);
+	console.log('recipientTokenOwner', recipientTokenOwner);
 }

@@ -108,7 +108,7 @@ export async function erc721handleTransfer(
 	ERC721contracts.save(contractData);
 
 	let metadatId = contractAddress + '-' + data.tokenId.toString();
-	let metadata = await metadatas.get(ctx.store, Metadata, tokenUri)
+	let metadata = await metadatas.get(ctx.store, Metadata, metadatId)
     if (!metadata) {
       metadata = await parseMetadata(ctx, tokenUri, metadatId)
       if (metadata) metadatas.save(metadata)

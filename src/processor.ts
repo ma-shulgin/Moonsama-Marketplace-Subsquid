@@ -17,15 +17,15 @@ import * as config from './utils/config';
 const database = new TypeormDatabase();
 const processor = new SubstrateBatchProcessor()
 	.setBatchSize(100)
-	.setBlockRange({ from: 1527496 })
+	.setBlockRange({ from: 568970 })
 	.setDataSource({
 		chain: config.CHAIN_NODE,
 		archive: lookupArchive('moonriver', { release: 'FireSquid' }),
 	})
 	.setTypesBundle('moonriver')
-// .addEvmLog(config.MOONSAMA_ADDRESS, {
-//  	filter: [erc721.events['Transfer(address,address,uint256)'].topic],
-//  })
+	.addEvmLog(config.MOONSAMA_ADDRESS, {
+		filter: [erc721.events['Transfer(address,address,uint256)'].topic],
+	})
 // .addEvmLog(config.PONDSAMA_ADDRESS, {
 // 	filter: [[erc721.events['Transfer(address,address,uint256)'].topic]],
 // })
@@ -80,18 +80,18 @@ const processor = new SubstrateBatchProcessor()
 // 		],
 // 	],
 // })
-.addEvmLog(config.EMBASSY_ADDRESS, {
-	filter: [
-		[
-			erc1155.events[
-				'TransferSingle(address,address,address,uint256,uint256)'
-			].topic,
-			erc1155.events[
-				'TransferBatch(address,address,address,uint256[],uint256[])'
-			].topic,
-		],
-	],
-});
+// .addEvmLog(config.EMBASSY_ADDRESS, {
+// 	filter: [
+// 		[
+// 			erc1155.events[
+// 				'TransferSingle(address,address,address,uint256,uint256)'
+// 			].topic,
+// 			erc1155.events[
+// 				'TransferBatch(address,address,address,uint256[],uint256[])'
+// 			].topic,
+// 		],
+// 	],
+// });
 
 processor.run(database, async (ctx) => {
 	for (const block of ctx.blocks) {
@@ -112,31 +112,31 @@ processor.run(database, async (ctx) => {
 
 async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
 	const contractAddress = ctx.event.args.address;
-	// if (
-	// 	contractAddress === config.MOONSAMA_ADDRESS &&
-	// 	config.MOONSAMA_HEIGHT <= ctx.block.height &&
-	// 	ctx.event.args.topics[0] ===
-	// 		erc721.events["Transfer(address,address,uint256)"].topic
-	// ) {
-	// 	await erc721handleTransfer(ctx);
-	// }
-
 	if (
-		contractAddress === config.EMBASSY_ADDRESS && config.EMBASSY_HEIGHT <= ctx.block.height
+		contractAddress === config.MOONSAMA_ADDRESS &&
+		config.MOONSAMA_HEIGHT <= ctx.block.height &&
+		ctx.event.args.topics[0] ===
+		erc721.events["Transfer(address,address,uint256)"].topic
 	) {
-		switch (ctx.event.args.topics[0]) {
-			case erc1155.events[
-				'TransferSingle(address,address,address,uint256,uint256)'
-			].topic:
-				await erc1155handleSingleTransfer(ctx);
-				break;
-			case erc1155.events[
-				'TransferBatch(address,address,address,uint256[],uint256[])'
-			].topic:
-				await erc1155handleMultiTransfer(ctx);
-				break;
-		}
+		await erc721handleTransfer(ctx);
 	}
+
+	// if (
+	// 	contractAddress === config.EMBASSY_ADDRESS && config.EMBASSY_HEIGHT <= ctx.block.height
+	// ) {
+	// 	switch (ctx.event.args.topics[0]) {
+	// 		case erc1155.events[
+	// 			'TransferSingle(address,address,address,uint256,uint256)'
+	// 		].topic:
+	// 			await erc1155handleSingleTransfer(ctx);
+	// 			break;
+	// 		case erc1155.events[
+	// 			'TransferBatch(address,address,address,uint256[],uint256[])'
+	// 		].topic:
+	// 			await erc1155handleMultiTransfer(ctx);
+	// 			break;
+	// 	}
+	// }
 
 
 	// if (

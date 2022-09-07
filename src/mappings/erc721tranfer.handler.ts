@@ -47,6 +47,14 @@ export async function erc721handleTransfer(
 			balance: 0n,
 		});
 	}
+	if (
+		oldOwner.balance != null &&
+		oldOwner.balance > BigInt(0) &&
+		oldOwner.id != '0x0000000000000000000000000000000000000000'
+	) {
+		oldOwner.balance = oldOwner.balance - BigInt(1);
+	}
+	ERC721owners.save(oldOwner);
 
 	let owner = await ERC721owners.get(
 		ctx.store,
@@ -59,20 +67,9 @@ export async function erc721handleTransfer(
 			balance: 0n,
 		});
 	}
-
-	if (
-		oldOwner.balance != null &&
-		oldOwner.balance > BigInt(0) &&
-		oldOwner.id != '0x0000000000000000000000000000000000000000'
-	) {
-		oldOwner.balance = oldOwner.balance - BigInt(1);
-	}
-
 	if (owner.balance != null) {
 		owner.balance = owner.balance + BigInt(1);
 	}
-
-	ERC721owners.save(oldOwner);
 	ERC721owners.save(owner);
 
 	let contractData = await ERC721contracts.get(

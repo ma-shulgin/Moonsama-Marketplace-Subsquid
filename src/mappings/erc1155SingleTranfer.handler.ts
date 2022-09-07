@@ -200,6 +200,5 @@ export async function erc1155handleSingleTransfer(
 		});
 	}
 	ERC1155transfers.save(transfer);
-	console.log('senderTokenOwner', senderTokenOwner);
-	console.log('recipientTokenOwner', recipientTokenOwner);
+	console.log('ERC1155Transfer', transfer);
 }

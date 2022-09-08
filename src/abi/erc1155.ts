@@ -1,301 +1,263 @@
 import * as ethers from "ethers";
-import assert from "assert";
 
 export const abi = new ethers.utils.Interface(getJsonAbi());
 
-export type ApprovalForAll0Event = ([account: string, operator: string, approved: boolean] & {account: string, operator: string, approved: boolean})
+export interface ApprovalForAll0Event {
+  account: string;
+  operator: string;
+  approved: boolean;
+}
 
-export type Create0Event = ([_creator: string, _account: string, _id: ethers.BigNumber, _initialSupply: ethers.BigNumber, _maxSupply: ethers.BigNumber, _fractionalized: boolean] & {_creator: string, _account: string, _id: ethers.BigNumber, _initialSupply: ethers.BigNumber, _maxSupply: ethers.BigNumber, _fractionalized: boolean})
+export interface Create0Event {
+  _creator: string;
+  _account: string;
+  _id: ethers.BigNumber;
+  _initialSupply: ethers.BigNumber;
+  _maxSupply: ethers.BigNumber;
+  _fractionalized: boolean;
+}
 
-export type CreatorGaveUpControl0Event = ([id: ethers.BigNumber, creator: string] & {id: ethers.BigNumber, creator: string})
+export interface CreatorGaveUpControl0Event {
+  id: ethers.BigNumber;
+  creator: string;
+}
 
-export type Lock0Event = ([id: ethers.BigNumber, supply: ethers.BigNumber] & {id: ethers.BigNumber, supply: ethers.BigNumber})
+export interface Lock0Event {
+  id: ethers.BigNumber;
+  supply: ethers.BigNumber;
+}
 
-export type RoleAdminChanged0Event = ([role: string, previousAdminRole: string, newAdminRole: string] & {role: string, previousAdminRole: string, newAdminRole: string})
+export interface RoleAdminChanged0Event {
+  role: string;
+  previousAdminRole: string;
+  newAdminRole: string;
+}
 
-export type RoleGranted0Event = ([role: string, account: string, sender: string] & {role: string, account: string, sender: string})
+export interface RoleGranted0Event {
+  role: string;
+  account: string;
+  sender: string;
+}
 
-export type RoleRevoked0Event = ([role: string, account: string, sender: string] & {role: string, account: string, sender: string})
+export interface RoleRevoked0Event {
+  role: string;
+  account: string;
+  sender: string;
+}
 
-export type SecondarySaleFee0Event = ([id: ethers.BigNumber, recipient: string, value: ethers.BigNumber] & {id: ethers.BigNumber, recipient: string, value: ethers.BigNumber})
+export interface SecondarySaleFee0Event {
+  id: ethers.BigNumber;
+  recipient: string;
+  value: ethers.BigNumber;
+}
 
-export type TransferBatch0Event = ([operator: string, from: string, to: string, ids: Array<ethers.BigNumber>, values: Array<ethers.BigNumber>] & {operator: string, from: string, to: string, ids: Array<ethers.BigNumber>})
+export interface TransferBatch0Event {
+  operator: string;
+  from: string;
+  to: string;
+  ids: Array<ethers.BigNumber>;
+  values: Array<ethers.BigNumber>;
+}
 
-export type TransferSingle0Event = ([operator: string, from: string, to: string, id: ethers.BigNumber, value: ethers.BigNumber] & {operator: string, from: string, to: string, id: ethers.BigNumber, value: ethers.BigNumber})
+export interface TransferSingle0Event {
+  operator: string;
+  from: string;
+  to: string;
+  id: ethers.BigNumber;
+  value: ethers.BigNumber;
+}
 
-export type URI0Event = ([value: string, id: ethers.BigNumber] & {value: string, id: ethers.BigNumber})
+export interface URI0Event {
+  value: string;
+  id: ethers.BigNumber;
+}
 
-export interface EvmLog {
+export interface EvmEvent {
   data: string;
   topics: string[];
 }
 
-function decodeEvent(signature: string, data: EvmLog): any {
-  return abi.decodeEventLog(
-    abi.getEvent(signature),
-    data.data || "",
-    data.topics
-  );
-}
-
 export const events = {
-  "ApprovalForAll(address,address,bool)": {
+  "ApprovalForAll(address,address,bool)":  {
     topic: abi.getEventTopic("ApprovalForAll(address,address,bool)"),
-    decode(data: EvmLog): ApprovalForAll0Event {
-      return decodeEvent("ApprovalForAll(address,address,bool)", data)
+    decode(data: EvmEvent): ApprovalForAll0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("ApprovalForAll(address,address,bool)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        account: result[0],
+        operator: result[1],
+        approved: result[2],
+      }
     }
   }
   ,
-  "Create(address,address,uint256,uint256,uint256,bool)": {
+  "Create(address,address,uint256,uint256,uint256,bool)":  {
     topic: abi.getEventTopic("Create(address,address,uint256,uint256,uint256,bool)"),
-    decode(data: EvmLog): Create0Event {
-      return decodeEvent("Create(address,address,uint256,uint256,uint256,bool)", data)
+    decode(data: EvmEvent): Create0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("Create(address,address,uint256,uint256,uint256,bool)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        _creator: result[0],
+        _account: result[1],
+        _id: result[2],
+        _initialSupply: result[3],
+        _maxSupply: result[4],
+        _fractionalized: result[5],
+      }
     }
   }
   ,
-  "CreatorGaveUpControl(uint256,address)": {
+  "CreatorGaveUpControl(uint256,address)":  {
     topic: abi.getEventTopic("CreatorGaveUpControl(uint256,address)"),
-    decode(data: EvmLog): CreatorGaveUpControl0Event {
-      return decodeEvent("CreatorGaveUpControl(uint256,address)", data)
+    decode(data: EvmEvent): CreatorGaveUpControl0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("CreatorGaveUpControl(uint256,address)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        id: result[0],
+        creator: result[1],
+      }
     }
   }
   ,
-  "Lock(uint256,uint256)": {
+  "Lock(uint256,uint256)":  {
     topic: abi.getEventTopic("Lock(uint256,uint256)"),
-    decode(data: EvmLog): Lock0Event {
-      return decodeEvent("Lock(uint256,uint256)", data)
+    decode(data: EvmEvent): Lock0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("Lock(uint256,uint256)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        id: result[0],
+        supply: result[1],
+      }
     }
   }
   ,
-  "RoleAdminChanged(bytes32,bytes32,bytes32)": {
+  "RoleAdminChanged(bytes32,bytes32,bytes32)":  {
     topic: abi.getEventTopic("RoleAdminChanged(bytes32,bytes32,bytes32)"),
-    decode(data: EvmLog): RoleAdminChanged0Event {
-      return decodeEvent("RoleAdminChanged(bytes32,bytes32,bytes32)", data)
+    decode(data: EvmEvent): RoleAdminChanged0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("RoleAdminChanged(bytes32,bytes32,bytes32)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        role: result[0],
+        previousAdminRole: result[1],
+        newAdminRole: result[2],
+      }
     }
   }
   ,
-  "RoleGranted(bytes32,address,address)": {
+  "RoleGranted(bytes32,address,address)":  {
     topic: abi.getEventTopic("RoleGranted(bytes32,address,address)"),
-    decode(data: EvmLog): RoleGranted0Event {
-      return decodeEvent("RoleGranted(bytes32,address,address)", data)
+    decode(data: EvmEvent): RoleGranted0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("RoleGranted(bytes32,address,address)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        role: result[0],
+        account: result[1],
+        sender: result[2],
+      }
     }
   }
   ,
-  "RoleRevoked(bytes32,address,address)": {
+  "RoleRevoked(bytes32,address,address)":  {
     topic: abi.getEventTopic("RoleRevoked(bytes32,address,address)"),
-    decode(data: EvmLog): RoleRevoked0Event {
-      return decodeEvent("RoleRevoked(bytes32,address,address)", data)
+    decode(data: EvmEvent): RoleRevoked0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("RoleRevoked(bytes32,address,address)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        role: result[0],
+        account: result[1],
+        sender: result[2],
+      }
     }
   }
   ,
-  "SecondarySaleFee(uint256,address,uint256)": {
+  "SecondarySaleFee(uint256,address,uint256)":  {
     topic: abi.getEventTopic("SecondarySaleFee(uint256,address,uint256)"),
-    decode(data: EvmLog): SecondarySaleFee0Event {
-      return decodeEvent("SecondarySaleFee(uint256,address,uint256)", data)
+    decode(data: EvmEvent): SecondarySaleFee0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("SecondarySaleFee(uint256,address,uint256)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        id: result[0],
+        recipient: result[1],
+        value: result[2],
+      }
     }
   }
   ,
-  "TransferBatch(address,address,address,uint256[],uint256[])": {
+  "TransferBatch(address,address,address,uint256[],uint256[])":  {
     topic: abi.getEventTopic("TransferBatch(address,address,address,uint256[],uint256[])"),
-    decode(data: EvmLog): TransferBatch0Event {
-      return decodeEvent("TransferBatch(address,address,address,uint256[],uint256[])", data)
+    decode(data: EvmEvent): TransferBatch0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("TransferBatch(address,address,address,uint256[],uint256[])"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        operator: result[0],
+        from: result[1],
+        to: result[2],
+        ids: result[3],
+        values: result[4],
+      }
     }
   }
   ,
-  "TransferSingle(address,address,address,uint256,uint256)": {
+  "TransferSingle(address,address,address,uint256,uint256)":  {
     topic: abi.getEventTopic("TransferSingle(address,address,address,uint256,uint256)"),
-    decode(data: EvmLog): TransferSingle0Event {
-      return decodeEvent("TransferSingle(address,address,address,uint256,uint256)", data)
+    decode(data: EvmEvent): TransferSingle0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("TransferSingle(address,address,address,uint256,uint256)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        operator: result[0],
+        from: result[1],
+        to: result[2],
+        id: result[3],
+        value: result[4],
+      }
     }
   }
   ,
-  "URI(string,uint256)": {
+  "URI(string,uint256)":  {
     topic: abi.getEventTopic("URI(string,uint256)"),
-    decode(data: EvmLog): URI0Event {
-      return decodeEvent("URI(string,uint256)", data)
+    decode(data: EvmEvent): URI0Event {
+      const result = abi.decodeEventLog(
+        abi.getEvent("URI(string,uint256)"),
+        data.data || "",
+        data.topics
+      );
+      return  {
+        value: result[0],
+        id: result[1],
+      }
     }
   }
   ,
-}
-
-
-function decodeFunction(data: string): any {
-  return abi.decodeFunctionData(data.slice(0, 10), data)
-}
-
-export const functions = {
-}
-
-interface ChainContext  {
-  _chain: Chain
-}
-
-interface BlockContext  {
-  _chain: Chain
-  block: Block
-}
-
-interface Block  {
-  height: number
-}
-
-interface Chain  {
-  client:  {
-    call: <T=any>(method: string, params?: unknown[]) => Promise<T>
-  }
-}
-
-export class Contract  {
-  private readonly _chain: Chain
-  private readonly blockHeight: number
-  readonly address: string
-
-  constructor(ctx: BlockContext, address: string)
-  constructor(ctx: ChainContext, block: Block, address: string)
-  constructor(ctx: BlockContext, blockOrAddress: Block | string, address?: string) {
-    this._chain = ctx._chain
-    if (typeof blockOrAddress === 'string')  {
-      this.blockHeight = ctx.block.height
-      this.address = ethers.utils.getAddress(blockOrAddress)
-    }
-    else  {
-      assert(address != null)
-      this.blockHeight = blockOrAddress.height
-      this.address = ethers.utils.getAddress(address)
-    }
-  }
-
-  async ADMIN_ROLE(): Promise<string> {
-    return this.call("ADMIN_ROLE", [])
-  }
-
-  async DEFAULT_ADMIN_ROLE(): Promise<string> {
-    return this.call("DEFAULT_ADMIN_ROLE", [])
-  }
-
-  async MINTER_ROLE(): Promise<string> {
-    return this.call("MINTER_ROLE", [])
-  }
-
-  async OWNER_ROLE(): Promise<string> {
-    return this.call("OWNER_ROLE", [])
-  }
-
-  async VERSION(): Promise<string> {
-    return this.call("VERSION", [])
-  }
-
-  async balanceOf(account: string, id: ethers.BigNumber): Promise<ethers.BigNumber> {
-    return this.call("balanceOf", [account, id])
-  }
-
-  async balanceOfBatch(accounts: Array<string>, ids: Array<ethers.BigNumber>): Promise<Array<ethers.BigNumber>> {
-    return this.call("balanceOfBatch", [accounts, ids])
-  }
-
-  async decimals(): Promise<number> {
-    return this.call("decimals", [])
-  }
-
-  async exists(_id: ethers.BigNumber): Promise<boolean> {
-    return this.call("exists", [_id])
-  }
-
-  async fractionalized(_id: ethers.BigNumber): Promise<boolean> {
-    return this.call("fractionalized", [_id])
-  }
-
-  async getRoleAdmin(role: string): Promise<string> {
-    return this.call("getRoleAdmin", [role])
-  }
-
-  async hasRole(role: string, account: string): Promise<boolean> {
-    return this.call("hasRole", [role, account])
-  }
-
-  async idMode(): Promise<number> {
-    return this.call("idMode", [])
-  }
-
-  async initialized(): Promise<boolean> {
-    return this.call("initialized", [])
-  }
-
-  async isApprovedForAll(_owner: string, _operator: string): Promise<boolean> {
-    return this.call("isApprovedForAll", [_owner, _operator])
-  }
-
-  async maxSupply(_id: ethers.BigNumber): Promise<ethers.BigNumber> {
-    return this.call("maxSupply", [_id])
-  }
-
-  async name(): Promise<string> {
-    return this.call("name", [])
-  }
-
-  async proxyRegistry(): Promise<string> {
-    return this.call("proxyRegistry", [])
-  }
-
-  async royaltyInfo(_tokenId: ethers.BigNumber, _salePrice: ethers.BigNumber): Promise<([receiver: string, royaltyAmount: ethers.BigNumber] & {receiver: string, royaltyAmount: ethers.BigNumber})> {
-    return this.call("royaltyInfo", [_tokenId, _salePrice])
-  }
-
-  async isProxy(_address: string, _operator: string): Promise<boolean> {
-    return this.call("isProxy", [_address, _operator])
-  }
-
-  async cap(_id: ethers.BigNumber): Promise<ethers.BigNumber> {
-    return this.call("cap", [_id])
-  }
-
-  async contractURI(): Promise<string> {
-    return this.call("contractURI", [])
-  }
-
-  async secondarySaleFee(id: ethers.BigNumber): Promise<([recipient: string, value: ethers.BigNumber] & {recipient: string, value: ethers.BigNumber})> {
-    return this.call("secondarySaleFee", [id])
-  }
-
-  async supportsInterface(interfaceId: string): Promise<boolean> {
-    return this.call("supportsInterface", [interfaceId])
-  }
-
-  async symbol(): Promise<string> {
-    return this.call("symbol", [])
-  }
-
-  async token(arg0: ethers.BigNumber): Promise<([totalSupply: ethers.BigNumber, maxSupply: ethers.BigNumber, creator: string, locked: boolean] & {totalSupply: ethers.BigNumber, maxSupply: ethers.BigNumber, creator: string, locked: boolean})> {
-    return this.call("token", [arg0])
-  }
-
-  async tokenURIPostfix(): Promise<string> {
-    return this.call("tokenURIPostfix", [])
-  }
-
-  async tokenURIPrefix(): Promise<string> {
-    return this.call("tokenURIPrefix", [])
-  }
-
-  async totalSupply(_id: ethers.BigNumber): Promise<ethers.BigNumber> {
-    return this.call("totalSupply", [_id])
-  }
-
-  async uri(_id: ethers.BigNumber): Promise<string> {
-    return this.call("uri", [_id])
-  }
-
-  async uriScheme(_id: ethers.BigNumber): Promise<string> {
-    return this.call("uriScheme", [_id])
-  }
-
-  private async call(name: string, args: any[]) : Promise<any> {
-    const fragment = abi.getFunction(name)
-    const data = abi.encodeFunctionData(fragment, args)
-    const result = await this._chain.client.call('eth_call', [{to: this.address, data}, this.blockHeight])
-    const decoded = abi.decodeFunctionResult(fragment, result)
-    return decoded.length > 1 ? decoded : decoded[0]
-  }
 }
 
 function getJsonAbi(): any {
@@ -769,6 +731,162 @@ function getJsonAbi(): any {
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "burn",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "ids",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "values",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "burnBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        }
+      ],
+      "name": "cap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "contractURI",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_creator",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_initialSupply",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_maxSupply",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "_fractionalized",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "string",
+          "name": "_customUri",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address payable",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct HasSecondarySaleFee.Fee",
+          "name": "_fee",
+          "type": "tuple"
+        }
+      ],
+      "name": "create",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        }
+      ],
+      "name": "creatorGiveUpControl",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "decimals",
       "outputs": [
@@ -851,6 +969,24 @@ function getJsonAbi(): any {
           "type": "address"
         }
       ],
+      "name": "grantRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
       "name": "hasRole",
       "outputs": [
         {
@@ -915,6 +1051,43 @@ function getJsonAbi(): any {
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_operator",
+          "type": "address"
+        }
+      ],
+      "name": "isProxy",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        }
+      ],
+      "name": "lock",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "_id",
           "type": "uint256"
@@ -929,6 +1102,62 @@ function getJsonAbi(): any {
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_ids",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "_amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_data",
+          "type": "bytes"
+        }
+      ],
+      "name": "mintBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -955,6 +1184,42 @@ function getJsonAbi(): any {
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "renounceRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "revokeRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -990,56 +1255,66 @@ function getJsonAbi(): any {
       "inputs": [
         {
           "internalType": "address",
-          "name": "_address",
+          "name": "from",
           "type": "address"
         },
         {
           "internalType": "address",
-          "name": "_operator",
+          "name": "to",
           "type": "address"
-        }
-      ],
-      "name": "isProxy",
-      "outputs": [
+        },
         {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
+          "internalType": "uint256[]",
+          "name": "ids",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amounts",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
         }
       ],
-      "stateMutability": "view",
+      "name": "safeBatchTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "inputs": [
         {
-          "internalType": "uint256",
-          "name": "_id",
-          "type": "uint256"
-        }
-      ],
-      "name": "cap",
-      "outputs": [
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
         {
           "internalType": "uint256",
-          "name": "",
+          "name": "id",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "contractURI",
-      "outputs": [
+        },
         {
-          "internalType": "string",
-          "name": "",
-          "type": "string"
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
         }
       ],
-      "stateMutability": "view",
+      "name": "safeTransferFrom",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1071,6 +1346,111 @@ function getJsonAbi(): any {
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "approved",
+          "type": "bool"
+        }
+      ],
+      "name": "setApprovalForAll",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "contractURI",
+          "type": "string"
+        }
+      ],
+      "name": "setContractURI",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address payable",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct HasSecondarySaleFee.Fee",
+          "name": "_fee",
+          "type": "tuple"
+        }
+      ],
+      "name": "setSecondarySaleFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "newTokenURI",
+          "type": "string"
+        }
+      ],
+      "name": "setTokenURI",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "tokenURIPostfix",
+          "type": "string"
+        }
+      ],
+      "name": "setTokenURIPostfix",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "tokenURIPrefix",
+          "type": "string"
+        }
+      ],
+      "name": "setTokenURIPrefix",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -1182,6 +1562,19 @@ function getJsonAbi(): any {
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_proxyRegistryAddress",
+          "type": "address"
+        }
+      ],
+      "name": "updateProxyRegistryAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {

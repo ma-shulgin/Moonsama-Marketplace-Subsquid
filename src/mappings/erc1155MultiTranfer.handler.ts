@@ -22,7 +22,8 @@ import {
 	parseMetadata,
 	fetchContractMetadata,
 } from '../helpers/metadata.helper';
-import { ERC1155TOKEN_RELATIONS } from '../utils/config';
+import { ERC1155TOKEN_RELATIONS, provider } from '../utils/config';
+import { ethers } from 'ethers';
 
 export async function erc1155handleMultiTransfer(
 	ctx: EvmLogHandlerContext<Store>
@@ -30,7 +31,12 @@ export async function erc1155handleMultiTransfer(
 	const { event, block, store } = ctx;
 	const evmLog = event.args;
 	const contractAddress = evmLog.address.toLowerCase() as string;
-	const contractAPI = new erc1155.Contract(ctx, contractAddress);
+	// const contractAPI = new erc1155.Contract(ctx, contractAddress);
+	const contractAPI = new ethers.Contract(
+		contractAddress,
+		erc1155.abi,
+		provider
+	);
 	const data =
 		erc1155.events[
 			'TransferBatch(address,address,address,uint256[],uint256[])'
@@ -38,14 +44,14 @@ export async function erc1155handleMultiTransfer(
 
 	for (let i = 0; i < data.ids.length; i++) {
 		const [name, symbol, contractURI, decimals, totalSupply, uri] =
-		await Promise.all([
-			contractAPI.name(),
-			contractAPI.symbol(),
-			contractAPI.contractURI(),
-			contractAPI.decimals(),
-			contractAPI.totalSupply(data.ids[i]),
-			contractAPI.uri(data.ids[i]),
-		]);
+			await Promise.all([
+				contractAPI.name(),
+				contractAPI.symbol(),
+				contractAPI.contractURI(),
+				contractAPI.decimals(),
+				contractAPI.totalSupply(data.ids[i]),
+				contractAPI.uri(data.ids[i]),
+			]);
 		let oldOwner = await ERC1155owners.get(
 			ctx.store,
 			ERC1155Owner,
@@ -84,7 +90,7 @@ export async function erc1155handleMultiTransfer(
 				totalSupply: BigInt(1),
 				decimals: decimals,
 				contractURI: contractURI,
-				contractURIUpdated: BigInt(block.timestamp),
+				contractURIUpdated: BigInt(block.timestamp) / BigInt(1000),
 				startBlock: block.height,
 			});
 		} else {
@@ -97,7 +103,7 @@ export async function erc1155handleMultiTransfer(
 			contractData.decimals = decimals;
 			contractData.totalSupply = contractTotalSupply;
 			contractData.contractURI = contractURI;
-			contractData.contractURIUpdated = BigInt(block.timestamp);
+			contractData.contractURIUpdated = BigInt(block.timestamp) / BigInt(1000);
 		}
 		const rawMetadata = await fetchContractMetadata(ctx, contractURI);
 		if (rawMetadata) {
@@ -131,8 +137,8 @@ export async function erc1155handleMultiTransfer(
 				tokenUri: uri,
 				metadata: meta,
 				contract: contractData,
-				updatedAt: BigInt(block.timestamp),
-				createdAt: BigInt(block.timestamp),
+				updatedAt: BigInt(block.timestamp) / BigInt(1000),
+				createdAt: BigInt(block.timestamp) / BigInt(1000),
 			});
 		}
 		token.totalSupply = totalSupply.toBigInt();
@@ -156,8 +162,8 @@ export async function erc1155handleMultiTransfer(
 		senderTokenOwner.token = token;
 		// if we mint tokens, we don't mark it
 		// total minted ever can be caluclated by totalSupply + burned amount
-		if (oldOwner.id != '0x0000000000000000000000000000000000000000' ) {
-			senderTokenOwner.balance -= data[4][i].toBigInt();
+		if (oldOwner.id != '0x0000000000000000000000000000000000000000') {
+			senderTokenOwner.balance -= data.values[i].toBigInt();
 		}
 		ERC1155tokenOwners.save(senderTokenOwner);
 
@@ -179,7 +185,7 @@ export async function erc1155handleMultiTransfer(
 		recipientTokenOwner.token = token;
 		// in case of 0x0000000000000000000000000000000000000000 it's the burned amount
 		recipientTokenOwner.balance =
-			recipientTokenOwner.balance + data[4][i].toBigInt();
+			recipientTokenOwner.balance + data.values[i].toBigInt();
 		ERC1155tokenOwners.save(recipientTokenOwner);
 
 		let transferId = block.hash
@@ -194,7 +200,7 @@ export async function erc1155handleMultiTransfer(
 			transfer = new ERC1155Transfer({
 				id: transferId,
 				block: block.height,
-				timestamp: BigInt(block.timestamp),
+				timestamp: BigInt(block.timestamp) / BigInt(1000),
 				transactionHash: block.hash,
 				from: oldOwner,
 				to: owner,

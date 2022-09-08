@@ -86,7 +86,7 @@ export async function erc721handleTransfer(
 			totalSupply: totalSupply.toBigInt(),
 			decimals: 0,
 			contractURI: contractURI,
-			contractURIUpdated: BigInt(block.timestamp),
+			contractURIUpdated: BigInt(block.timestamp)/BigInt(1000),
 			startBlock: block.height,
 		});
 	} else {
@@ -94,7 +94,7 @@ export async function erc721handleTransfer(
 		contractData.symbol = symbol;
 		contractData.totalSupply = totalSupply.toBigInt();
 		contractData.contractURI = contractURI;
-		contractData.contractURIUpdated = BigInt(block.timestamp);
+		contractData.contractURIUpdated = BigInt(block.timestamp)/BigInt(1000);
 	}
 	const rawMetadata = await fetchContractMetadata(ctx, contractURI);
 	if (rawMetadata) {
@@ -129,12 +129,12 @@ export async function erc721handleTransfer(
 			tokenUri,
 			metadata,
 			contract: contractData,
-			updatedAt: BigInt(block.timestamp),
-			createdAt: BigInt(block.timestamp),
+			updatedAt: BigInt(block.timestamp)/BigInt(1000),
+			createdAt: BigInt(block.timestamp)/BigInt(1000),
 		});
 	} else {
 		token.owner = owner;
-		token.updatedAt = BigInt(block.timestamp);
+		token.updatedAt = BigInt(block.timestamp)/BigInt(1000);
 	}
 	ERC721tokens.save(token);
 
@@ -150,7 +150,7 @@ export async function erc721handleTransfer(
 		transfer = new ERC721Transfer({
 			id: transferId,
 			block: block.height,
-			timestamp: BigInt(block.timestamp),
+			timestamp: BigInt(block.timestamp)/BigInt(1000),
 			transactionHash: block.hash,
 			from: oldOwner,
 			to: owner,

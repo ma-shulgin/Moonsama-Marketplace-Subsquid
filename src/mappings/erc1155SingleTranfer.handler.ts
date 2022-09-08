@@ -1,6 +1,5 @@
 import { EvmLogHandlerContext } from '@subsquid/substrate-processor';
 import { Store } from '@subsquid/typeorm-store';
-import assert from 'assert';
 import {
 	ERC1155Contract,
 	ERC1155Owner,
@@ -22,7 +21,8 @@ import {
 	parseMetadata,
 	fetchContractMetadata,
 } from '../helpers/metadata.helper';
-import { ERC1155TOKEN_RELATIONS } from '../utils/config';
+import { ERC1155TOKEN_RELATIONS, provider } from '../utils/config';
+import { ethers } from 'ethers';
 
 export async function erc1155handleSingleTransfer(
 	ctx: EvmLogHandlerContext<Store>
@@ -30,7 +30,12 @@ export async function erc1155handleSingleTransfer(
 	const { event, block, store } = ctx;
 	const evmLog = event.args;
 	const contractAddress = evmLog.address.toLowerCase() as string;
-	const contractAPI = new erc1155.Contract(ctx, contractAddress);
+	// const contractAPI = new erc1155.Contract(ctx, contractAddress);
+	const contractAPI = new ethers.Contract(
+		contractAddress,
+		erc1155.abi,
+		provider
+	);
 	const data =
 		erc1155.events[
 			'TransferSingle(address,address,address,uint256,uint256)'
@@ -82,7 +87,7 @@ export async function erc1155handleSingleTransfer(
 			totalSupply: BigInt(0),
 			decimals: decimals,
 			contractURI: contractURI,
-			contractURIUpdated: BigInt(block.timestamp),
+			contractURIUpdated: BigInt(block.timestamp)/BigInt(1000),
 			startBlock: block.height,
 		});
 	} else {
@@ -95,7 +100,7 @@ export async function erc1155handleSingleTransfer(
 		contractData.decimals = decimals;
 		contractData.totalSupply = contractTotalSupply;
 		contractData.contractURI = contractURI;
-		contractData.contractURIUpdated = BigInt(block.timestamp);
+		contractData.contractURIUpdated = BigInt(block.timestamp)/BigInt(1000);
 	}
 	const rawMetadata = await fetchContractMetadata(ctx, contractURI);
 	if (rawMetadata) {
@@ -129,8 +134,8 @@ export async function erc1155handleSingleTransfer(
 			tokenUri: uri,
 			metadata: meta,
 			contract: contractData,
-			updatedAt: BigInt(block.timestamp),
-			createdAt: BigInt(block.timestamp),
+			updatedAt: BigInt(block.timestamp)/BigInt(1000),
+			createdAt: BigInt(block.timestamp)/BigInt(1000),
 		});
 	}
 	token.totalSupply = totalSupply.toBigInt();
@@ -192,7 +197,7 @@ export async function erc1155handleSingleTransfer(
 		transfer = new ERC1155Transfer({
 			id: transferId,
 			block: block.height,
-			timestamp: BigInt(block.timestamp),
+			timestamp: BigInt(block.timestamp)/BigInt(1000),
 			transactionHash: block.hash,
 			from: oldOwner,
 			to: owner,

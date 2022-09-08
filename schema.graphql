@@ -85,7 +85,7 @@ type ERC1155Transfer @entity {
 	from: ERC1155Owner
 	to: ERC1155Owner
 	timestamp: BigInt! @index
-	block: Int! @index
+	block: BigInt! @index
 	transactionHash: String! @index
 }
 
@@ -141,6 +141,6 @@ type ERC721Transfer @entity {
 	from: ERC721Owner
 	to: ERC721Owner
 	timestamp: BigInt! @index
-	block: Int! @index
+	block: BigInt! @index
 	transactionHash: String! @index
 }

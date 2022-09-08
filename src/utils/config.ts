@@ -1,6 +1,12 @@
 
+import { ethers } from 'ethers';
+
 export const CHAIN_NODE = process.env.CHAIN_NODE || "wss://wss.api.moonriver.moonbeam.network";
-// export const FACTORY_ADDRESS = process.env.FACTORY_ADDRESS || "0x649378326bE1b7F7a92849DE5545A05Dee506BaB".toLowerCase();
+export const HTTP_NODE = "https://moonriver.api.onfinality.io/public"
+export const provider = new ethers.providers.StaticJsonRpcProvider(HTTP_NODE, {
+  chainId: 1285,
+  name: 'moonriver'
+})
 export const MOONSAMA_ADDRESS = process.env.MOONSAMA_ADDRESS || "0xb654611f84a8dc429ba3cb4fda9fad236c505a1a".toLowerCase();
 export const PONDSAMA_ADDRESS = process.env.PONDSAMA_ADDRESS || "0xe4edcaaea73684b310fc206405ee80abcec73ee0".toLowerCase();
 export const PLOT_ADDRESS = process.env.PLOT_ADDRESS || "0xa17a550871e5f5f692a69a3abe26e8dbd5991b75".toLowerCase();

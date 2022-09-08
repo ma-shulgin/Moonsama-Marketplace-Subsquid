@@ -162,8 +162,8 @@ export async function erc1155handleMultiTransfer(
 		senderTokenOwner.token = token;
 		// if we mint tokens, we don't mark it
 		// total minted ever can be caluclated by totalSupply + burned amount
-		if (oldOwner.id != '0x0000000000000000000000000000000000000000') {
-			senderTokenOwner.balance -= data.values[i].toBigInt();
+		if (oldOwner.id != '0x0000000000000000000000000000000000000000' ) {
+			senderTokenOwner.balance -= data[4][i].toBigInt();
 		}
 		ERC1155tokenOwners.save(senderTokenOwner);
 
@@ -185,7 +185,7 @@ export async function erc1155handleMultiTransfer(
 		recipientTokenOwner.token = token;
 		// in case of 0x0000000000000000000000000000000000000000 it's the burned amount
 		recipientTokenOwner.balance =
-			recipientTokenOwner.balance + data.values[i].toBigInt();
+			recipientTokenOwner.balance + data[4][i].toBigInt();
 		ERC1155tokenOwners.save(recipientTokenOwner);
 
 		let transferId = block.hash

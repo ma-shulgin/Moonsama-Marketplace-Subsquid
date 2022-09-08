@@ -188,7 +188,7 @@ export async function erc1155handleMultiTransfer(
 			recipientTokenOwner.balance + data[4][i].toBigInt();
 		ERC1155tokenOwners.save(recipientTokenOwner);
 
-		let transferId = block.hash
+		let transferId = event.evmTxHash
 			.concat('-'.concat(data.ids[i].toString()))
 			.concat('-'.concat(event.indexInBlock.toString()));
 		let transfer = await ERC1155transfers.get(
@@ -201,7 +201,7 @@ export async function erc1155handleMultiTransfer(
 				id: transferId,
 				block: block.height,
 				timestamp: BigInt(block.timestamp) / BigInt(1000),
-				transactionHash: block.hash,
+				transactionHash: event.evmTxHash,
 				from: oldOwner,
 				to: owner,
 				token,

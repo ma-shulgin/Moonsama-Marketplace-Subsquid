@@ -139,7 +139,6 @@ export async function erc721handleTransfer(
 	ERC721tokens.save(token);
 
 	let transferId = block.hash
-		.concat('-'.concat(data.tokenId.toString()))
 		.concat('-'.concat(event.indexInBlock.toString()));
 	let transfer = await ERC721transfers.get(
 		ctx.store,
@@ -151,7 +150,7 @@ export async function erc721handleTransfer(
 			id: transferId,
 			block: block.height,
 			timestamp: BigInt(block.timestamp)/BigInt(1000),
-			transactionHash: block.hash,
+			transactionHash: ctx.event.evmTxHash,
 			from: oldOwner,
 			to: owner,
 			token,

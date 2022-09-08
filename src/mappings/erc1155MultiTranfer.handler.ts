@@ -49,8 +49,8 @@ export async function erc1155handleMultiTransfer(
 				contractAPI.symbol(),
 				contractAPI.contractURI(),
 				contractAPI.decimals(),
-				contractAPI.totalSupply(data.ids[i]),
-				contractAPI.uri(data.ids[i]),
+				contractAPI.totalSupply(data.ids[i].toString()),
+				contractAPI.uri(data.ids[i].toString()),
 			]);
 		let oldOwner = await ERC1155owners.get(
 			ctx.store,

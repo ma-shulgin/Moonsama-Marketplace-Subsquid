@@ -5,14 +5,18 @@ import { Attribute, Metadata } from '../model'
 import { IRawMetadata } from '../types/custom/metadata'
 
 export const BASE_URL = 'https://moonsama.mypinata.cloud/'
+const https = require("https");
 
-const api = Axios.create({
+export const api = Axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   withCredentials: false,
-})
+  timeout: 100000,
+  maxContentLength: 500 * 1000 * 1000,
+  httpsAgent: new https.Agent({ keepAlive: true })
+});
 
 export const sanitizeIpfsUrl = (ipfsUrl: string): string => {
   const reg1 = /^ipfs:\/\/ipfs/

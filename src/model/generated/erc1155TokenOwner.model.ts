@@ -12,9 +12,15 @@ export class ERC1155TokenOwner {
   @PrimaryColumn_()
   id!: string
 
+  @Column_("text", {nullable: false})
+  ownerId!: string
+
   @Index_()
   @ManyToOne_(() => ERC1155Owner, {nullable: true})
   owner!: ERC1155Owner
+
+  @Column_("text", {nullable: false})
+  tokenId!: string
 
   @Index_()
   @ManyToOne_(() => ERC1155Token, {nullable: true})

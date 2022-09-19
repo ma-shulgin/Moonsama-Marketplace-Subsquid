@@ -1,167 +1,134 @@
-import { EvmLogHandlerContext } from '@subsquid/substrate-processor';
-import { Store } from '@subsquid/typeorm-store';
-import assert from 'assert';
+import { EvmLogHandlerContext } from '@subsquid/substrate-processor'
+import { Store } from '@subsquid/typeorm-store'
 import {
-	ERC721Contract,
-	ERC721Owner,
-	ERC721Token,
-	ERC721Transfer,
-	Metadata,
-} from '../model';
-import * as erc721 from '../abi/erc721';
+  ERC721Contract,
+  ERC721Owner,
+  ERC721Token,
+  ERC721Transfer,
+} from '../model'
+import * as erc721 from '../abi/erc721'
 import {
-	ERC721contracts,
-	ERC721owners,
-	ERC721tokens,
-	ERC721transfers,
-	metadatas,
-} from '../utils/entitiesManager';
-import { parseMetadata, fetchContractMetadata } from '../helpers/metadata.helper'
-import { ERC721TOKEN_RELATIONS, provider } from '../utils/config';
-import { ethers } from 'ethers';
+  ERC721contracts,
+  ERC721owners,
+  ERC721tokens,
+  ERC721transfers,
+} from '../utils/entitiesManager'
+import { ERC721TOKEN_RELATIONS, NULL_ADDRESS } from '../utils/config'
+import { getTokenId } from '../helpers'
 
 export async function erc721handleTransfer(
-	ctx: EvmLogHandlerContext<Store>
+  ctx: EvmLogHandlerContext<Store>
 ): Promise<void> {
-	const { event, block, store } = ctx;
-	const evmLog = event.args;
-	const contractAddress = evmLog.address.toLowerCase() as string;
-	// const contractAPI = new erc721.Contract(ctx, contractAddress);
-	const contractAPI = new ethers.Contract(
-		contractAddress,
-		erc721.abi,
-		provider
-	);
-	const data =
-		erc721.events['Transfer(address,address,uint256)'].decode(evmLog);
-	const [name, symbol, contractURI, totalSupply, tokenUri] =
-		await Promise.all([
-			contractAPI.name(),
-			contractAPI.symbol(),
-			contractAPI.contractURI(),
-			contractAPI.totalSupply(),
-			contractAPI.tokenURI(data.tokenId),
-		]);
-	let oldOwner = await ERC721owners.get(
-		ctx.store,
-		ERC721Owner,
-		data.from.toLowerCase()
-	);
-	if (oldOwner == null) {
-		oldOwner = new ERC721Owner({
-			id: data.from.toLowerCase(),
-			balance: 0n,
-		});
-	}
-	if (
-		oldOwner.balance != null &&
-		oldOwner.balance > BigInt(0) &&
-		oldOwner.id != '0x0000000000000000000000000000000000000000'
-	) {
-		oldOwner.balance = oldOwner.balance - BigInt(1);
-	}
-	ERC721owners.save(oldOwner);
+  const { event, block } = ctx
+  const evmLog = event.args
+  const contractAddress = evmLog.address.toLowerCase() as string
+  const contractAPI = new erc721.Contract(ctx, contractAddress)
+  // const contractAPI = new ethers.Contract(
+  // 	contractAddress,
+  // 	erc721.abi,
+  // 	provider
+  // );
+  const data = erc721.events['Transfer(address,address,uint256)'].decode(evmLog)
+  const numericId = data.tokenId.toBigInt()
+  const tokenId = getTokenId(contractAddress, numericId)
 
-	let owner = await ERC721owners.get(
-		ctx.store,
-		ERC721Owner,
-		data.to.toLowerCase()
-	);
-	if (owner == null) {
-		owner = new ERC721Owner({
-			id: data.to.toLowerCase(),
-			balance: 0n,
-		});
-	}
-	if (owner.balance != null) {
-		owner.balance = owner.balance + BigInt(1);
-	}
-	ERC721owners.save(owner);
+  let oldOwner = await ERC721owners.get(
+    ctx.store,
+    ERC721Owner,
+    data.from.toLowerCase()
+  )
+  if (!oldOwner) {
+    oldOwner = new ERC721Owner({
+      id: data.from.toLowerCase(),
+      balance: 0n,
+    })
+  }
+  if (
+    oldOwner.balance != null &&
+    oldOwner.balance > BigInt(0) &&
+    oldOwner.id !== NULL_ADDRESS
+  ) {
+    oldOwner.balance -= BigInt(1)
+  }
+  ERC721owners.save(oldOwner)
 
-	let contractData = await ERC721contracts.get(
-		ctx.store,
-		ERC721Contract,
-		contractAddress
-	);
-	if (contractData == null) {
-		contractData = new ERC721Contract({
-			id: contractAddress,
-			address: contractAddress,
-			name: name,
-			symbol: symbol,
-			totalSupply: totalSupply.toBigInt(),
-			decimals: 0,
-			contractURI: contractURI,
-			contractURIUpdated: BigInt(block.timestamp) / BigInt(1000),
-			startBlock: block.height,
-		});
-	} else {
-		contractData.name = name;
-		contractData.symbol = symbol;
-		contractData.totalSupply = totalSupply.toBigInt();
-		contractData.contractURI = contractURI;
-		contractData.contractURIUpdated = BigInt(block.timestamp) / BigInt(1000);
-	}
-	const rawMetadata = await fetchContractMetadata(ctx, contractURI);
-	if (rawMetadata) {
-		contractData.metadataName = rawMetadata.name;
-		contractData.artist = rawMetadata.artist;
-		contractData.artistUrl = rawMetadata.artistUrl;
-		contractData.externalLink = rawMetadata.externalLink;
-		contractData.description = rawMetadata.description;
-		contractData.image = rawMetadata.image;
-	}
-	ERC721contracts.save(contractData);
+  let owner = await ERC721owners.get(
+    ctx.store,
+    ERC721Owner,
+    data.to.toLowerCase()
+  )
+  if (!owner) {
+    owner = new ERC721Owner({
+      id: data.to.toLowerCase(),
+      balance: 0n,
+    })
+  }
+  if (owner.balance != null) {
+    owner.balance += BigInt(1)
+  }
+  ERC721owners.save(owner)
 
-	let metadatId = contractAddress + '-' + data.tokenId.toString();
-	let metadata = await metadatas.get(ctx.store, Metadata, metadatId)
-	if (!metadata) {
-		metadata = await parseMetadata(ctx, tokenUri, metadatId)
-		if (metadata) metadatas.save(metadata)
-	}
+  let contractData = await ERC721contracts.get(
+    ctx.store,
+    ERC721Contract,
+    contractAddress
+  )
 
-	let token = await ERC721tokens.get(
-		ctx.store,
-		ERC721Token,
-		metadatId,
-		ERC721TOKEN_RELATIONS
-	);
-	// assert(token);
-	if (!token) {
-		token = new ERC721Token({
-			id: metadatId,
-			numericId: data.tokenId.toBigInt(),
-			owner,
-			tokenUri,
-			metadata,
-			contract: contractData,
-			updatedAt: BigInt(block.timestamp) / BigInt(1000),
-			createdAt: BigInt(block.timestamp) / BigInt(1000),
-		});
-	} else {
-		token.owner = owner;
-		token.updatedAt = BigInt(block.timestamp) / BigInt(1000);
-	}
-	ERC721tokens.save(token);
+  if (!contractData) {
+    if (oldOwner.id === NULL_ADDRESS) {
+      const [name, symbol] = await Promise.all([
+        contractAPI.name(),
+        contractAPI.symbol(),
+      ])
+      contractData = new ERC721Contract({
+        id: contractAddress,
+        address: contractAddress,
+        name,
+        symbol,
+        decimals: 0,
+        startBlock: block.height,
+        contractURIUpdated: BigInt(block.timestamp) / BigInt(1000),
+      })
+    } else throw new Error(`Can't find contract entity for ${contractAddress}`)
+  }
 
-	let transferId = event.evmTxHash
-		.concat('-'.concat(event.indexInBlock.toString()));
-	let transfer = await ERC721transfers.get(
-		ctx.store,
-		ERC721Transfer,
-		transferId
-	);
-	if (!transfer) {
-		transfer = new ERC721Transfer({
-			id: transferId,
-			block: block.height,
-			timestamp: BigInt(block.timestamp) / BigInt(1000),
-			transactionHash: event.evmTxHash,
-			from: oldOwner,
-			to: owner,
-			token,
-		});
-	}
-	ERC721transfers.save(transfer);
-	console.log('ERC721Transfer', transfer);
+  ERC721contracts.save(contractData)
+
+  const token =
+    oldOwner.id !== NULL_ADDRESS
+      ? ((await ERC721tokens.get(
+          ctx.store,
+          ERC721Token,
+          tokenId,
+          ERC721TOKEN_RELATIONS,
+          true
+        )) as ERC721Token)
+      : new ERC721Token({
+          id: tokenId,
+          numericId,
+          owner,
+          contract: contractData,
+          createdAt: BigInt(block.timestamp) / BigInt(1000),
+          updatedAt: BigInt(block.timestamp) / BigInt(1000),
+        })
+  token.owner = owner
+
+  ERC721tokens.save(token)
+
+  const transferId = event.evmTxHash.concat(
+    '-'.concat(event.indexInBlock.toString())
+  )
+
+  const transfer = new ERC721Transfer({
+    id: transferId,
+    block: BigInt(block.height),
+    timestamp: BigInt(block.timestamp) / BigInt(1000),
+    transactionHash: event.evmTxHash,
+    from: oldOwner,
+    to: owner,
+    token,
+  })
+
+  ERC721transfers.save(transfer)
+  ctx.log.info(`[ERC721Transfer] - ${tokenId} - ${transfer.id}`)
 }

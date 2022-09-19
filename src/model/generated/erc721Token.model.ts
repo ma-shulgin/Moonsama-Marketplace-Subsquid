@@ -18,9 +18,12 @@ export class ERC721Token {
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
   numericId!: bigint
 
+  @Column_("text", {nullable: false})
+  ownerId!: string
+
   @Index_()
   @ManyToOne_(() => ERC721Owner, {nullable: true})
-  owner!: ERC721Owner | undefined | null
+  owner!: ERC721Owner
 
   @Column_("text", {nullable: true})
   tokenUri!: string | undefined | null
@@ -36,9 +39,15 @@ export class ERC721Token {
   @OneToMany_(() => ERC721Transfer, e => e.token)
   transfers!: ERC721Transfer[]
 
+  @Column_("text", {nullable: false})
+  contractId!: string
+
   @Index_()
   @ManyToOne_(() => ERC721Contract, {nullable: true})
   contract!: ERC721Contract
+
+  @Column_("text", {nullable: true})
+  metadataId!: string | undefined | null
 
   @Index_()
   @ManyToOne_(() => Metadata, {nullable: true})

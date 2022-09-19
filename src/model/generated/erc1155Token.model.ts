@@ -35,12 +35,18 @@ export class ERC1155Token {
   @OneToMany_(() => ERC1155Transfer, e => e.token)
   transfers!: ERC1155Transfer[]
 
+  @Column_("text", {nullable: false})
+  contractId!: string
+
   @Index_()
   @ManyToOne_(() => ERC1155Contract, {nullable: true})
-  contract!: ERC1155Contract | undefined | null
+  contract!: ERC1155Contract
 
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: true})
   totalSupply!: bigint | undefined | null
+
+  @Column_("text", {nullable: true})
+  metadataId!: string | undefined | null
 
   @Index_()
   @ManyToOne_(() => Metadata, {nullable: true})

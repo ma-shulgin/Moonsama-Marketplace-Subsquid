@@ -1,14 +1,6 @@
-import { CommonHandlerContext } from '@subsquid/substrate-processor'
-import { Store } from '@subsquid/typeorm-store'
-import { BigNumber } from 'ethers'
-import { Metadata, ERC721Token, ERC1155Token } from '../model'
-import { metadatas } from '../utils/entitiesManager'
-import * as erc721 from '../abi/erc721'
-import * as erc1155 from '../abi/erc1155'
-import { parseMetadata } from './metadata.helper'
 
 export function getTokenId(contract: string, nativeId: BigInt): string {
-  return `${contract}-${String(nativeId).padStart(9, '0')}`
+  return `${contract}-${String(nativeId)}`
 }
 
 // export async function updateERC721TokenMetadata(

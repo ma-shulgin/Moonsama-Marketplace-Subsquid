@@ -15,15 +15,19 @@ import {
   Metadata,
 } from '../model'
 
-interface EntityWithId {
+export interface EntityWithId {
   id: string
 }
 
-class EntitiesBuffer<Entity extends EntityWithId> {
+export class EntitiesBuffer<Entity extends EntityWithId> {
   protected saveBuffer: Set<Entity> = new Set()
 
   save(entity: Entity): void {
     this.saveBuffer.add(entity)
+  }
+
+  getBuffer(): Set<Entity> {
+    return this.saveBuffer
   }
 
   async saveAll(db: Store): Promise<void> {
@@ -32,10 +36,24 @@ class EntitiesBuffer<Entity extends EntityWithId> {
   }
 }
 
-class EntitiesCache<
+export class EntitiesCache<
   Entity extends EntityWithId
 > extends EntitiesBuffer<Entity> {
   protected cache: Map<string, Entity> = new Map()
+
+  protected uriUpdatedBuffer: Set<Entity> = new Set()
+
+  addToUriUpdatedBuffer(entitiy: Entity): void {
+    this.uriUpdatedBuffer.add(entitiy)
+  }
+
+  delFromUriUpdatedBuffer(entitiy: Entity): void {
+    this.uriUpdatedBuffer.delete(entitiy)
+  }
+
+  getUriUpdateBuffer(): Set<Entity> {
+    return this.uriUpdatedBuffer
+  }
 
   protected addCache(entity: Entity): void {
     this.cache.set(entity.id, entity)
@@ -98,17 +116,19 @@ class ERC721TokenCache extends EntitiesCache<ERC721Token> {
 
     // Replace db tokens that exists in cache
     cachedTokens.forEach((token) => {
-      const replaceId = allTokens.findIndex((dbToken) => dbToken.id === token.id)
+      const replaceId = allTokens.findIndex(
+        (dbToken) => dbToken.id === token.id
+      )
       // Tokens only that exist in db could be cached
       assert(replaceId >= 0)
       allTokens[replaceId] = token
     })
 
     // Add everything from db to in-memory cache
-    allTokens.forEach((token)=>{
+    allTokens.forEach((token) => {
       this.addCache(token)
     })
-    
+
     return allTokens
   }
 }
@@ -134,17 +154,19 @@ class ERC1155TokenCache extends EntitiesCache<ERC1155Token> {
 
     // Replace db tokens that exists in cache
     cachedTokens.forEach((token) => {
-      const replaceId = allTokens.findIndex((dbToken) => dbToken.id === token.id)
+      const replaceId = allTokens.findIndex(
+        (dbToken) => dbToken.id === token.id
+      )
       // Tokens only that exist in db could be cached
       assert(replaceId >= 0)
       allTokens[replaceId] = token
     })
 
     // Add everything from db to in-memory cache
-    allTokens.forEach((token)=>{
+    allTokens.forEach((token) => {
       this.addCache(token)
     })
-    
+
     return allTokens
   }
 }

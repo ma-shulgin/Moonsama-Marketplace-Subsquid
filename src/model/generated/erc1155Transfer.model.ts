@@ -12,25 +12,37 @@ export class ERC1155Transfer {
   @PrimaryColumn_()
   id!: string
 
+  @Column_("text", {nullable: false})
+  tokenId!: string
+
   @Index_()
   @ManyToOne_(() => ERC1155Token, {nullable: true})
   token!: ERC1155Token
 
-  @Index_()
-  @ManyToOne_(() => ERC1155Owner, {nullable: true})
-  from!: ERC1155Owner | undefined | null
+  @Column_("text", {nullable: false})
+  fromId!: string
 
   @Index_()
   @ManyToOne_(() => ERC1155Owner, {nullable: true})
-  to!: ERC1155Owner | undefined | null
+  from!: ERC1155Owner
+
+  @Column_("text", {nullable: false})
+  toId!: string
+
+  @Index_()
+  @ManyToOne_(() => ERC1155Owner, {nullable: true})
+  to!: ERC1155Owner
+
+  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+  value!: bigint
 
   @Index_()
   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
   timestamp!: bigint
 
   @Index_()
-  @Column_("int4", {nullable: false})
-  block!: number
+  @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
+  block!: bigint
 
   @Index_()
   @Column_("text", {nullable: false})

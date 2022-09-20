@@ -171,7 +171,7 @@ export const fetchContractMetadata = async (
 export async function batchEntityMapper<T extends EntityWithId>(
   ctx: CommonHandlerContext<Store>,
   manager: EntitiesCache<T>,
-  buffer_: Set<T>,
+  buffer_: Array<T>,
   updater: (
     ctx: CommonHandlerContext<Store>,
     entity: T,
@@ -179,10 +179,9 @@ export async function batchEntityMapper<T extends EntityWithId>(
   ) => Promise<void>,
   batchSize: number
 ): Promise<void> {
-  const entitiesBuffer = [...buffer_]
-  for (let i = 0; i < entitiesBuffer.length; i += batchSize) {
+  for (let i = 0; i < buffer_.length; i += batchSize) {
     await Promise.all(
-      entitiesBuffer.slice(i, i + batchSize).map(async (entity) => {
+      buffer_.slice(i, i + batchSize).map(async (entity) => {
         await updater(ctx, entity, manager)
       })
     )
@@ -259,6 +258,7 @@ async function fillTokenMetadata<T extends ERC1155Token | ERC721Token>(
   if (meta) {
     metadatas.save(meta)
     entity.metadata = meta
+    manager.save(entity)
     manager.delFromUriUpdatedBuffer(entity)
     ctx.log.info(`Metadata updated for token - ${entity.id}`)
   }
@@ -277,7 +277,7 @@ async function fillContractMetadata<T extends ERC1155Contract | ERC721Contract>(
     entity.externalLink = rawMetadata.externalLink
     entity.description = rawMetadata.description
     entity.image = rawMetadata.image
-
+    manager.save(entity)
     manager.delFromUriUpdatedBuffer(entity)
     ctx.log.info(`Metadata updated for contract - ${entity.id}`)
   }

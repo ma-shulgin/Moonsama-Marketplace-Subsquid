@@ -26,8 +26,8 @@ export class EntitiesBuffer<Entity extends EntityWithId> {
     this.saveBuffer.add(entity)
   }
 
-  getBuffer(): Set<Entity> {
-    return this.saveBuffer
+  getBuffer(): Array<Entity> {
+    return [...this.saveBuffer]
   }
 
   async saveAll(db: Store): Promise<void> {
@@ -41,18 +41,18 @@ export class EntitiesCache<
 > extends EntitiesBuffer<Entity> {
   protected cache: Map<string, Entity> = new Map()
 
-  protected uriUpdatedBuffer: Set<Entity> = new Set()
+  protected uriUpdatedBuffer = new Map<string,Entity>()
 
   addToUriUpdatedBuffer(entitiy: Entity): void {
-    this.uriUpdatedBuffer.add(entitiy)
+    this.uriUpdatedBuffer.set(entitiy.id, entitiy)
   }
 
   delFromUriUpdatedBuffer(entitiy: Entity): void {
-    this.uriUpdatedBuffer.delete(entitiy)
+    this.uriUpdatedBuffer.delete(entitiy.id)
   }
 
-  getUriUpdateBuffer(): Set<Entity> {
-    return this.uriUpdatedBuffer
+  getUriUpdateBuffer(): Array<Entity> {
+    return [...this.uriUpdatedBuffer.values()]
   }
 
   protected addCache(entity: Entity): void {

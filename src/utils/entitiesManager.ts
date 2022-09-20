@@ -41,7 +41,11 @@ export class EntitiesCache<
 > extends EntitiesBuffer<Entity> {
   protected cache: Map<string, Entity> = new Map()
 
-  protected uriUpdatedBuffer = new Map<string,Entity>()
+  protected uriUpdatedBuffer = new Map<string, Entity>()
+
+  hasToUpdate(entitiy: Entity): boolean {
+    return this.uriUpdatedBuffer.has(entitiy.id)
+  }
 
   addToUriUpdatedBuffer(entitiy: Entity): void {
     this.uriUpdatedBuffer.set(entitiy.id, entitiy)

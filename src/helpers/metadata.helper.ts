@@ -195,7 +195,7 @@ async function get1155ContractUri(
 ): Promise<void> {
   const contractAPI = new erc1155.Contract(ctx, entity.id)
   const contractURI = await contractAPI.contractURI()
-  if (!entity.metadataName || contractURI !== entity.contractURI) {
+  if (!entity.metadataName || contractURI !== entity.contractURI || manager.hasToUpdate(entity)) {
     entity.contractURI = contractURI
     entity.contractURIUpdated = BigInt(ctx.block.timestamp) / BigInt(1000)
     manager.addToUriUpdatedBuffer(entity)
@@ -209,7 +209,7 @@ async function get721ContractUri(
 ): Promise<void> {
   const contractAPI = new erc721.Contract(ctx, entity.id)
   const contractURI = await contractAPI.contractURI()
-  if (!entity.metadataName || contractURI !== entity.contractURI) {
+  if (!entity.metadataName || contractURI !== entity.contractURI || manager.hasToUpdate(entity)) {
     entity.contractURI = contractURI
     entity.contractURIUpdated = BigInt(ctx.block.timestamp) / BigInt(1000)
     manager.addToUriUpdatedBuffer(entity)
@@ -223,7 +223,7 @@ async function get721TokenUri(
 ): Promise<void> {
   const contractAPI = new erc721.Contract(ctx, entity.contract.id)
   const tokenURI = await contractAPI.tokenURI(BigNumber.from(entity.numericId))
-  if (!entity.metadataId || tokenURI !== entity.tokenUri) {
+  if (!entity.metadataId || tokenURI !== entity.tokenUri || manager.hasToUpdate(entity)) {
     entity.tokenUri = tokenURI
     entity.updatedAt = BigInt(ctx.block.timestamp) / BigInt(1000)
     manager.addToUriUpdatedBuffer(entity)
@@ -237,7 +237,7 @@ async function get1155TokenUri(
 ): Promise<void> {
   const contractAPI = new erc1155.Contract(ctx, entity.contract.id)
   const tokenURI = await contractAPI.uri(BigNumber.from(entity.numericId))
-  if (!entity.metadataId || tokenURI !== entity.tokenUri) {
+  if (!entity.metadataId || tokenURI !== entity.tokenUri || manager.hasToUpdate(entity)) {
     entity.tokenUri = tokenURI
     entity.updatedAt = BigInt(ctx.block.timestamp) / BigInt(1000)
     manager.addToUriUpdatedBuffer(entity)

@@ -34,8 +34,7 @@ export const api = Axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: false,
-  timeout: 2000,
-  maxContentLength: 500 * 1000 * 1000,
+  timeout: 5000,
   httpsAgent: new https.Agent({ keepAlive: true }),
 })
 
@@ -162,7 +161,9 @@ export const fetchContractMetadata = async (
     }
   } catch (e) {
     const tries = addFailedFetch(properUrl)
-    ctx.log.warn(`[IPFS] ERROR ${properUrl} ${tries} TRY ${(e as Error).message}`)
+    ctx.log.warn(
+      `[IPFS] ERROR ${properUrl} ${tries} TRY ${(e as Error).message}`
+    )
   }
   return undefined
 }
@@ -195,7 +196,7 @@ async function get1155ContractUri(
 ): Promise<void> {
   const contractAPI = new erc1155.Contract(ctx, entity.id)
   const contractURI = await contractAPI.contractURI()
-  if (contractURI !== entity.contractURI) {
+  if (!entity.metadataName || contractURI !== entity.contractURI) {
     entity.contractURI = contractURI
     entity.contractURIUpdated = BigInt(ctx.block.timestamp) / BigInt(1000)
     manager.addToUriUpdatedBuffer(entity)
@@ -209,7 +210,7 @@ async function get721ContractUri(
 ): Promise<void> {
   const contractAPI = new erc721.Contract(ctx, entity.id)
   const contractURI = await contractAPI.contractURI()
-  if (contractURI !== entity.contractURI) {
+  if (!entity.metadataName || contractURI !== entity.contractURI) {
     entity.contractURI = contractURI
     entity.contractURIUpdated = BigInt(ctx.block.timestamp) / BigInt(1000)
     manager.addToUriUpdatedBuffer(entity)
@@ -223,7 +224,7 @@ async function get721TokenUri(
 ): Promise<void> {
   const contractAPI = new erc721.Contract(ctx, entity.contract.id)
   const tokenURI = await contractAPI.tokenURI(BigNumber.from(entity.numericId))
-  if (tokenURI !== entity.tokenUri) {
+  if (!entity.metadataId || tokenURI !== entity.tokenUri) {
     entity.tokenUri = tokenURI
     entity.updatedAt = BigInt(ctx.block.timestamp) / BigInt(1000)
     manager.addToUriUpdatedBuffer(entity)
@@ -237,7 +238,7 @@ async function get1155TokenUri(
 ): Promise<void> {
   const contractAPI = new erc1155.Contract(ctx, entity.contract.id)
   const tokenURI = await contractAPI.uri(BigNumber.from(entity.numericId))
-  if (tokenURI && tokenURI !== entity.tokenUri) {
+  if (!entity.metadataId || tokenURI !== entity.tokenUri) {
     entity.tokenUri = tokenURI
     entity.updatedAt = BigInt(ctx.block.timestamp) / BigInt(1000)
     manager.addToUriUpdatedBuffer(entity)

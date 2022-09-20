@@ -14,6 +14,7 @@ import * as erc721 from './abi/erc721'
 import * as erc1155 from './abi/erc1155'
 import * as config from './utils/config'
 import { updateAllMetadata } from './helpers/metadata.helper'
+import { getEVMLog } from './helpers'
 
 const database = new TypeormDatabase()
 const processor = new SubstrateBatchProcessor()
@@ -116,11 +117,12 @@ processor.run(database, async (ctx) => {
 })
 
 async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
-  const contractAddress = ctx.event.args.address
+  const evmLog = getEVMLog(ctx.event)
+  const contractAddress: string = evmLog.address
   // if (
   // 	contractAddress === config.MOONSAMA_ADDRESS &&
   // 	config.MOONSAMA_HEIGHT <= ctx.block.height &&
-  // 	ctx.event.args.topics[0] ===
+  // 	evmLog.topics[0] ===
   // 		erc721.events["Transfer(address,address,uint256)"].topic
   // ) {
   // 	await erc721handleTransfer(ctx);
@@ -129,7 +131,7 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
   // if (
   // 	contractAddress === config.FACTORY_ADDRESS && config.FACTORY_HEIGHT <= ctx.block.height
   // ) {
-  // 	switch (ctx.event.args.topics[0]) {
+  // 	switch (evmLog.topics[0]) {
   // 		case erc1155.events[
   // 			'TransferSingle(address,address,address,uint256,uint256)'
   // 		].topic:
@@ -150,7 +152,7 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
         config.PONDSAMA_HEIGHT <= ctx.block.height) ||
       (contractAddress === config.PLOT_ADDRESS &&
         config.PLOT_HEIGHT <= ctx.block.height)) &&
-    ctx.event.args.topics[0] ===
+    evmLog.topics[0] ===
       erc721.events['Transfer(address,address,uint256)'].topic
   ) {
     await erc721handleTransfer(ctx)
@@ -167,8 +169,8 @@ async function handleEvmLog(ctx: EvmLogHandlerContext<Store>) {
       config.EMBASSY_HEIGHT <= ctx.block.height)
   ) {
     // ctx.log.info(ctx.block.height.toString())
-    // ctx.log.info(ctx.event.args)
-    switch (ctx.event.args.topics[0]) {
+    // ctx.log.info(evmLog)
+    switch (evmLog.topics[0]) {
       case erc1155.events[
         'TransferSingle(address,address,address,uint256,uint256)'
       ].topic:

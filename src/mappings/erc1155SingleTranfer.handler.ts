@@ -16,13 +16,13 @@ import {
   ERC1155transfers,
 } from '../utils/entitiesManager'
 import { ERC1155TOKEN_RELATIONS, NULL_ADDRESS } from '../utils/config'
-import { getTokenId } from '../helpers'
+import { getEVMLog, getTokenId } from '../helpers'
 
 export async function erc1155handleSingleTransfer(
   ctx: EvmLogHandlerContext<Store>
 ): Promise<void> {
   const { event, block } = ctx
-  const evmLog = event.args
+  const evmLog = getEVMLog(event)
   const contractAddress = evmLog.address.toLowerCase() as string
   const contractAPI = new erc1155.Contract(ctx, contractAddress)
   //  const contractAPI = new ethers.Contract(

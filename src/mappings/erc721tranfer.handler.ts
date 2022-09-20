@@ -14,13 +14,13 @@ import {
   ERC721transfers,
 } from '../utils/entitiesManager'
 import { ERC721TOKEN_RELATIONS, NULL_ADDRESS } from '../utils/config'
-import { getTokenId } from '../helpers'
+import { getEVMLog, getTokenId } from '../helpers'
 
 export async function erc721handleTransfer(
   ctx: EvmLogHandlerContext<Store>
 ): Promise<void> {
   const { event, block } = ctx
-  const evmLog = event.args
+  const evmLog = getEVMLog(event)
   const contractAddress = evmLog.address.toLowerCase() as string
   const contractAPI = new erc721.Contract(ctx, contractAddress)
   // const contractAPI = new ethers.Contract(
@@ -29,6 +29,8 @@ export async function erc721handleTransfer(
   // 	provider
   // );
   const data = erc721.events['Transfer(address,address,uint256)'].decode(evmLog)
+  // ctx.log.info(block)
+  // ctx.log.info(data)
   const numericId = data.tokenId.toBigInt()
   const tokenId = getTokenId(contractAddress, numericId)
 
@@ -115,9 +117,9 @@ export async function erc721handleTransfer(
 
   ERC721tokens.save(token)
 
-  const transferId = event.evmTxHash.concat(
-    '-'.concat(event.indexInBlock.toString())
-  )
+  const transferId = event.evmTxHash
+    .concat('-'.concat(tokenId))
+    .concat('-'.concat(event.indexInBlock.toString()))
 
   const transfer = new ERC721Transfer({
     id: transferId,

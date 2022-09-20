@@ -1,6 +1,5 @@
 import { EvmLogHandlerContext } from '@subsquid/substrate-processor'
 import { Store } from '@subsquid/typeorm-store'
-import { ethers } from 'ethers'
 import {
   ERC1155Contract,
   ERC1155Owner,
@@ -16,14 +15,14 @@ import {
   ERC1155tokenOwners,
   ERC1155transfers,
 } from '../utils/entitiesManager'
-import { ERC1155TOKEN_RELATIONS, NULL_ADDRESS, provider } from '../utils/config'
-import { getTokenId } from '../helpers'
+import { ERC1155TOKEN_RELATIONS, NULL_ADDRESS } from '../utils/config'
+import { getEVMLog, getTokenId } from '../helpers'
 
 export async function erc1155handleMultiTransfer(
   ctx: EvmLogHandlerContext<Store>
 ): Promise<void> {
   const { event, block } = ctx
-  const evmLog = event.args
+  const evmLog = getEVMLog(event)
   const contractAddress = evmLog.address.toLowerCase() as string
   const contractAPI = new erc1155.Contract(ctx, contractAddress)
   // const contractAPI = new ethers.Contract(
@@ -128,7 +127,7 @@ export async function erc1155handleMultiTransfer(
         id: senderTokenOwnerId,
         balance: 0n,
         token,
-				owner: oldOwner
+        owner: oldOwner,
       })
     }
     // if we mint tokens, we don't mark it
@@ -149,7 +148,7 @@ export async function erc1155handleMultiTransfer(
         id: recipientTokenOwnerId,
         balance: 0n,
         token,
-				owner
+        owner,
       })
     }
 
